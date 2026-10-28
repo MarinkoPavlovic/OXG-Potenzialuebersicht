@@ -58,6 +58,7 @@
 .lead-dialog-actions{display:flex;gap:8px;flex-wrap:wrap}.lead-dialog-actions button:disabled{opacity:.5;cursor:not-allowed}
 .metric-column-label{margin-top:8px}.metric-column-details{margin-top:2px}
 .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:800px){.dashboard-grid{grid-template-columns:1fr}}
+.advisor-panel{grid-column:1 / -1;min-width:0}.advisor-table-wrap{overflow-x:auto}.advisor-table{min-width:870px}.advisor-table th,.advisor-table td{white-space:nowrap}.advisor-table th:not(:first-child),.advisor-table td:not(:first-child){padding-left:12px}
 .lead-table th:last-child,.lead-table .contract-indicator{text-align:center}.lead-table .contract-indicator{color:#087c5b;font-size:18px;font-weight:800}
 .topbar{background:#227f87;border-color:#227f87}.topbar .eyebrow{display:flex;align-items:center;gap:5px;min-height:16px}.eyebrow-logo{width:34px;height:16px;object-fit:cover;object-position:center;mix-blend-mode:normal}.topbar .eyebrow span{color:#fff}
 .header-brand{transform:none;object-fit:contain;object-position:right center;mask-image:linear-gradient(to right,transparent 0%,#000 18%);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 18%)}
