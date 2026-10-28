@@ -209,6 +209,7 @@ function todoTotals() {
   return result;
 }
 function render() {
+  document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   const t = totals(); const city = citySelect.value;
   const monthSuffix = monthSelect.value === 'all' ? (yearSelect.value === 'all' ? '' : ` · ${yearSelect.value}`) : ` · ${monthLabel(monthSelect.value)}`;
