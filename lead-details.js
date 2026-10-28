@@ -15,6 +15,10 @@ function hasExistingContract(row, ids) {
   const id=normalizeAdsId(row[9]);
   return Boolean(id && ids.has(id));
 }
+function formatLeadSummary(records, visible) {
+  const units=records.reduce((sum,row)=>sum+(Number(row[3])||0),0);
+  return `${number(records.length)} Leads · ${number(units)} WE · ${number(visible)} angezeigt`;
+}
 const addressCollator = new Intl.Collator('de-DE',{numeric:true,sensitivity:'base'});
 function compareLeadAddresses(a,b) {
   const postal = value => /^\d{1,5}$/.test(value||'') ? value.padStart(5,'0') : (value||'');
@@ -70,7 +74,7 @@ function appendLeadDetails() {
   }
   leadDetailsRows.append(fragment);visibleLeadCount=next;
   moreLeadDetails.hidden=visibleLeadCount>=leadDetailRecords.length;
-  leadDetailsInfo.textContent=`${number(leadDetailRecords.length)} Leads · ${number(visibleLeadCount)} angezeigt${activeLeadDetail==='contract'?'':' · Vertragsabgleich anhand der ADS-ID in allen geladenen Listen'}`;
+  leadDetailsInfo.textContent=formatLeadSummary(leadDetailRecords,visibleLeadCount);
 }
 function refreshLeadDetails() {
   if(!leadDetailsDialog.open||!activeLeadDetail)return;
