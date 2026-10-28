@@ -57,6 +57,7 @@
 .metric-column-details{margin-top:4px;font-size:11px;line-height:1.3;color:#68817e;font-weight:500}.metric-column-details small{font-size:10px;white-space:nowrap}
 .lead-dialog-actions{display:flex;gap:8px;flex-wrap:wrap}.lead-dialog-actions button:disabled{opacity:.5;cursor:not-allowed}
 .metric-column-label{margin-top:8px}.metric-column-details{margin-top:2px}
+.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:800px){.dashboard-grid{grid-template-columns:1fr}}
 .lead-table th:last-child,.lead-table .contract-indicator{text-align:center}.lead-table .contract-indicator{color:#087c5b;font-size:18px;font-weight:800}
 .topbar{background:#227f87;border-color:#227f87}.topbar .eyebrow{display:flex;align-items:center;gap:5px;min-height:16px}.eyebrow-logo{width:34px;height:16px;object-fit:cover;object-position:center;mix-blend-mode:normal}.topbar .eyebrow span{color:#fff}
 .header-brand{transform:none;object-fit:contain;object-position:right center;mask-image:linear-gradient(to right,transparent 0%,#000 18%);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 18%)}
