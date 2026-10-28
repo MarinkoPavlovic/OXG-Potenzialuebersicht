@@ -215,7 +215,8 @@ function render() {
   const monthSuffix = monthSelect.value === 'all' ? (yearSelect.value === 'all' ? '' : ` · ${yearSelect.value}`) : ` · ${monthLabel(monthSelect.value)}`;
   document.querySelector('#statusPanelTitle').textContent = `Bearbeitungsstand${monthSuffix}`;
   document.querySelector('#todoPanelTitle').textContent = `To-dos${monthSuffix}`;
-  document.querySelector('#advisorPanelTitle').textContent = `Auswertung nach Berater${monthSuffix}`;
+  const advisorMonth = monthSelect.value === 'all' ? '' : monthLabel(monthSelect.value).replace(/\b(\d{2})(\d{2})$/, '$2');
+  document.querySelector('#advisorPanelTitle').textContent = city !== 'all' && city ? `${city} Auswertung nach Berater${advisorMonth ? ` ${advisorMonth}` : ''}` : `Auswertung nach Berater${monthSuffix}`;
   document.querySelector('#advisorPanel').hidden = monthSelect.value === 'all';
   const advisorRows = document.querySelector('#advisorRows');
   const advisorData = advisorDistribution();
