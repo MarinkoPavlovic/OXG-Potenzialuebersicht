@@ -218,7 +218,7 @@ function render() {
     const tr = document.createElement('tr');
     const rate=(value,base)=>base?pct(value,base):'–';
     [row.name,number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
-    [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)]].forEach(([kind,count,units,percentage])=>{
+    [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)]].forEach(([kind,count,units,percentage])=>{
       const cell=document.createElement('td'), layout=document.createElement('div'), countEl=document.createElement('span'), unitsEl=document.createElement('span'), dotEl=document.createElement('span'), rateEl=document.createElement('span');
       cell.className=`advisor-category advisor-${kind}`;layout.className='advisor-result';countEl.className='advisor-result-count';unitsEl.className='advisor-result-units';dotEl.className='advisor-result-dot';rateEl.className='advisor-result-rate';
       countEl.textContent=number(count);unitsEl.textContent=`(${number(units)} WE)`;dotEl.textContent='·';rateEl.textContent=percentage;layout.append(countEl,unitsEl,dotEl,rateEl);cell.append(layout);tr.append(cell);
