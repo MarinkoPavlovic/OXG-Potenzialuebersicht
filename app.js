@@ -44,11 +44,12 @@ function advisorDistribution() {
   typeRecords().forEach(record=>{const name=record[2]||'Nicht zugeordnet';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(record);});
   return [...groups].map(([name,records])=>{
     const totals=typeRollup(records), todo=typeTodoTotals(records);
-    const nonmarketable=records.filter(row=>nonmarketableStatuses.has(row[4])).length;
+    const nonmarketableRows=records.filter(row=>nonmarketableStatuses.has(row[4]));
+    const nonmarketable=nonmarketableRows.length, nonmarketableUnits=nonmarketableRows.reduce((sum,row)=>sum+row[3],0);
     const marketable=Math.max(0,totals.t-nonmarketable);
     const determined=Math.max(0,marketable-todo.unworked[0]);
     const denominator=rateBasis.checked?determined:marketable;
-    return {name,leads:totals.t,units:totals.w,contracts:totals.contract||0,contractUnits:totals.contractW||0,interest:totals.interest||0,nonmarketable,todos:todo.onsite[0]+todo.hv[0],marketable,denominator};
+    return {name,leads:totals.t,units:totals.w,contracts:totals.contract||0,contractUnits:totals.contractW||0,interest:totals.interest||0,interestUnits:totals.interestW||0,nonmarketable,nonmarketableUnits,todos:todo.onsite[0]+todo.hv[0],todoUnits:todo.onsite[1]+todo.hv[1],marketable,denominator};
   }).sort((a,b) => b.leads-a.leads || a.name.localeCompare(b.name,'de'));
 }
 function advisorsForMonth(month) {
@@ -216,7 +217,12 @@ function render() {
   advisorData.forEach(row => {
     const tr = document.createElement('tr');
     const rate=(value,base)=>base?pct(value,base):'–';
-    [row.name,number(row.leads),number(row.units),`${number(row.contracts)} (${number(row.contractUnits)} WE)`,rate(row.contracts,row.denominator),`${number(row.interest)} · ${rate(row.interest,row.denominator)}`,`${number(row.nonmarketable)} · ${rate(row.nonmarketable,row.leads)}`,`${number(row.todos)} · ${rate(row.todos,row.marketable)}`].forEach(value => { const cell=document.createElement('td'); cell.textContent=value; tr.append(cell); });
+    [row.name,number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
+    [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)]].forEach(([kind,count,units,percentage])=>{
+      const cell=document.createElement('td'), layout=document.createElement('div'), countEl=document.createElement('span'), unitsEl=document.createElement('span'), rateEl=document.createElement('span');
+      cell.className=`advisor-category advisor-${kind}`;layout.className='advisor-result';countEl.className='advisor-result-count';unitsEl.className='advisor-result-units';rateEl.className='advisor-result-rate';
+      countEl.textContent=number(count);unitsEl.textContent=`(${number(units)} WE)`;rateEl.textContent=`· ${percentage}`;layout.append(countEl,unitsEl,rateEl);cell.append(layout);tr.append(cell);
+    });
     advisorRows.append(tr);
   });
   document.querySelector('#advisorEmpty').hidden = advisorData.length !== 0;
