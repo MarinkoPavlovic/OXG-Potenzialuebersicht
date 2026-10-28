@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Potenzialübersicht 2026</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow"><img class="eyebrow-logo" src="oxg-header-logo.jpeg" alt="OXG"><span>Glasfaser</span></p>
+          <h1>Potenzialübersicht</h1>
+          <p class="subtitle">Bitte mit dem Server verbinden und Potenziale laden</p>
+        </div>
+  <img class="header-brand" src="header-deutschland-tuerkis.png" alt="Glasfasernetz in Deutschland">
+      </header>
+
+      <dialog id="loadPeriodDialog" class="load-dialog" aria-labelledby="loadPeriodTitle">
+        <h2 id="loadPeriodTitle">Potenziale laden</h2>
+        <p>Wähle, für welchen Zeitraum die Beraterdateien eingelesen werden sollen.</p>
+        <div class="load-period-fields">
+          <label>Jahr <select id="loadYear"></select></label>
+          <div class="load-month-field"><span>Monat</span><details id="loadMonthPicker" class="load-month-picker"><summary id="loadMonthSummary">Alle Monate</summary><div id="loadMonthOptions" class="load-month-options"></div></details></div>
+        </div>
+        <p id="loadPeriodCount" role="status"></p>
+        <div class="load-period-actions"><button type="button" id="cancelLoadPeriod">Abbrechen</button><button type="button" id="confirmLoadPeriod">Potenziale laden</button></div>
+      </dialog>
+
+      <section class="filters" aria-label="Auswahl">
+        <div class="cloud-connection" aria-label="Serververbindung">
+          <button id="cloudLogin" type="button" disabled>Mit Server verbinden</button>
+          <button id="cloudRefresh" type="button" hidden>Potenziale laden</button>
+        </div>
+        <label>Jahr
+          <select id="yearSelect" aria-label="Jahr auswählen"></select>
+        </label>
+        <label>Monat
+          <select id="monthSelect" aria-label="Monat auswählen"></select>
+        </label>
+        <label>Ort
+          <select id="citySelect" aria-label="Ort auswählen"></select>
+        </label>
+        <div class="advisor-filter"><span>Berater</span>
+          <details class="advisor-picker"><summary id="advisorSummary">Alle Berater</summary><div class="advisor-options" id="advisorOptions"></div></details>
+          <select id="advisorSelect" hidden aria-hidden="true"></select>
+        </div>
+        <label>Lead-Art
+          <select id="leadTypeSelect" aria-label="Lead-Art auswählen">
+            <option value="all">Alle Leads</option>
+            <option value="new">Neue Leads</option>
+            <option value="old">Alte Leads</option>
+          </select>
+        </label>
+        <button id="reset" type="button">Zurücksetzen</button>
+        <div class="cloud-feedback"><span id="cloudStatus" role="status"></span><details id="cloudProblems" hidden><summary>Dateien mit Prüfbedarf</summary><ul id="cloudProblemList"></ul></details></div>
+      </section>
+
+      <section class="metric-grid" aria-label="Kennzahlen">
+        <article class="metric"><p>Gesamtpotenzial</p><strong id="total">–</strong><small id="scope">–</small><div class="marketable-total"><span>Vermarktbares Potenzial</span><strong id="marketableTotal">–</strong></div></article>
+        <article class="metric accent detail-trigger" role="button" tabindex="0" data-detail="contract" aria-label="Leads mit Gestattung anzeigen"><p>Gestattung</p><strong id="contracts">–</strong><small id="contractRate">–</small></article>
+        <article class="metric warning detail-trigger" role="button" tabindex="0" data-detail="unworked" aria-label="Nicht ermittelte Leads anzeigen"><p>Nicht ermittelt</p><strong id="open">–</strong><small id="openRate">–</small></article>
+        <article class="metric"><p>In Bearbeitung</p><strong id="inProgress">–</strong><small id="inProgressRate">–</small></article>
+        <article class="metric"><p>Kein Interesse</p><strong id="noInterest">–</strong><small id="noInterestRate">–</small></article>
+        <article class="metric"><p>Nicht vermarktbar</p><strong id="unresolved">–</strong><small id="unresolvedRate">–</small></article>
+      </section>
+
+      <label class="rate-option"><input type="checkbox" id="rateBasis"> Nur ermittelte Leads</label>
+
+      <section class="progress-strip" aria-label="Bearbeitungsfortschritt">
+        <div class="progress-track" role="progressbar" aria-label="Bearbeitungsfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progressFill"></i></div>
+        <div class="progress-copy"><strong id="progressLabel">–</strong><span id="progressDetail">–</span></div>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel status-panel">
+          <div class="panel-head"><div><h2 id="statusPanelTitle">Bearbeitungsstand</h2></div></div>
+          <div id="statusBars" class="bar-list" aria-live="polite"></div>
+        </article>
+        <article class="panel todo-panel">
+          <div class="panel-head"><div><h2 id="todoPanelTitle">To-dos</h2></div></div>
+          <div class="todo-list" aria-live="polite">
+            <div class="todo-row detail-trigger" role="button" tabindex="0" data-detail="owner" aria-label="Leads mit Eigentümer im Objekt anzeigen"><span>Eigentümer im Objekt</span><strong id="todoOwner">–</strong></div>
+            <div class="todo-row detail-trigger" role="button" tabindex="0" data-detail="hv" aria-label="Leads mit ermittelter Hausverwaltung anzeigen"><span>Hausverwaltung</span><strong id="todoHv">–</strong></div>
+            <div class="todo-row detail-trigger" role="button" tabindex="0" data-detail="onsite" aria-label="To-dos vor Ort anzeigen"><span>To-dos vor Ort</span><strong id="todoOnsite">–</strong></div>
+          </div>
+        </article>
+        <article class="panel metric-chart-panel">
+          <div id="metricChart" class="metric-chart" aria-label="Säulendiagramm der Bearbeitungsstände" aria-live="polite"></div>
+        </article>
+        <article class="panel progress-panel">
+          <div class="panel-head"><div><h2>Fortschritt</h2><p>Anteile der Hauptbearbeitungsstände</p></div></div>
+          <div class="donut-wrap">
+            <div id="donut" class="donut" role="img" aria-label="Fortschrittsanteil"></div>
+            <div class="donut-legend" hidden aria-hidden="true">
+              <div><span class="legend-dot success"></span><p>Gestattung</p><strong id="donePct">–</strong></div>
+              <div><span class="legend-dot open"></span><p>Nicht bearbeitet</p><strong id="openPct">–</strong></div>
+              <div><span class="legend-dot progress"></span><p>In Bearbeitung</p><strong id="progressPct">–</strong></div>
+              <div><span class="legend-dot blocked"></span><p>Nicht vermarktbar</p><strong id="blockedPct">–</strong></div>
+              <div><span class="legend-dot interest"></span><p>ET kein Interesse</p><strong id="interestPct">–</strong></div>
+            </div>
+          </div>
+        </article>
+        <article class="panel cities-panel">
+          <div class="panel-head"><div><h2 id="cityPanelTitle">Potenzialverteilung</h2><p id="cityPanelSubtitle"></p></div></div>
+          <div id="cities" class="city-list"></div>
+        </article>
+        <article class="panel advisor-panel" id="advisorPanel" hidden>
+          <div class="panel-head"><div><h2 id="advisorPanelTitle">Leads je Berater</h2></div></div>
+          <table class="advisor-table">
+            <thead><tr><th scope="col">Berater</th><th scope="col">Leads</th><th scope="col">WE</th></tr></thead>
+            <tbody id="advisorRows"></tbody>
+          </table>
+          <p id="advisorEmpty" class="advisor-empty" hidden>Keine Leads für diese Auswahl.</p>
+        </article>
+        <article class="panel note-panel">
+          <h2>So wird das Dashboard später aktuell</h2>
+          <p>Diese erste Ansicht nutzt eine Momentaufnahme der Hauptliste. Im nächsten Schritt ersetzt ein Cloud-Abruf die Momentaufnahme durch die aktuellen Beraterlisten.</p>
+          <div class="note-list"><span>1</span><p>Beraterdateien aus OneDrive einlesen</p><span>2</span><p>Gesamtdaten aktualisieren</p><span>3</span><p>Dashboard im Browser öffnen</p></div>
+        </article>
+      </section>
+      <dialog id="leadDetails" class="lead-dialog" aria-labelledby="leadDetailsTitle">
+        <div class="lead-dialog-head"><h2 id="leadDetailsTitle">Leads</h2><div class="lead-dialog-actions"><button type="button" id="exportLeadDetails">Excel exportieren</button><button type="button" id="closeLeadDetails" aria-label="Detailansicht schließen">Schließen</button></div></div>
+        <p id="leadDetailsInfo" role="status"></p>
+        <div class="lead-table-wrap"><table class="lead-table"><thead><tr><th scope="col">Berater</th><th scope="col">ADS-ID</th><th scope="col">WE</th><th scope="col">Adresse</th><th scope="col">Bemerkung</th><th scope="col" id="contractIndicatorHeader" title="Abgleich mit allen geladenen Listen">Vertrag vorhanden</th></tr></thead><tbody id="leadDetailsRows"></tbody></table></div>
+        <button type="button" id="moreLeadDetails" hidden>Weitere Leads anzeigen</button>
+      </dialog>
+    </main>
+    <script src="we-data.js"></script>
+    <script src="advisor-city-data.js"></script>
+    <script src="status-units-data.js"></script>
+    <script src="nonmarketable-data.js"></script>
+    <script src="nonmarketable-details.js"></script>
+    <script src="todo-data.js"></script>
+    <script src="lead-types-data.js"></script>
+    <script src="app.js"></script>
+    <script src="lead-details.js"></script>
+    <script src="jszip.min.js"></script>
+    <script src="export-template.js"></script>
+    <script src="lead-export.js"></script>
+    <script type="module" src="cloud-app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+const nonMarketableData = {city:{},advisor:{}};
