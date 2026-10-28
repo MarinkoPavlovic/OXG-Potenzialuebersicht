@@ -212,6 +212,10 @@ function render() {
   document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   const t = totals(); const city = citySelect.value;
+  const headerParts=['Potenzialübersicht'];
+  if(city && city!=='all')headerParts.push(city);
+  if(monthSelect.value && monthSelect.value!=='all')headerParts.push(monthLabel(monthSelect.value));
+  document.querySelector('#dashboardTitle').textContent=headerParts.join(' · ');
   const monthSuffix = monthSelect.value === 'all' ? (yearSelect.value === 'all' ? '' : ` · ${yearSelect.value}`) : ` · ${monthLabel(monthSelect.value)}`;
   document.querySelector('#statusPanelTitle').textContent = `Bearbeitungsstand${monthSuffix}`;
   document.querySelector('#todoPanelTitle').textContent = `To-dos${monthSuffix}`;
@@ -273,7 +277,7 @@ function render() {
   document.querySelector('#todoOnsite').innerHTML = metricValue(...todo.onsite);
   document.querySelector('#total').innerHTML = metricValue(t.t, units.w);
   document.querySelector('#marketableTotal').innerHTML = metricValue(marketableLeads, Math.max(0, units.w - nonMarketable[1]));
-  document.querySelector('#scope').textContent = selectedAdvisors.size===1 ? [...selectedAdvisors][0] : selectedAdvisors.size>1 ? `${selectedAdvisors.size} Berater` : city === 'all' ? '' : city;
+  document.querySelector('#scope').textContent = selectedAdvisors.size===1 ? [...selectedAdvisors][0] : selectedAdvisors.size>1 ? `${selectedAdvisors.size} Berater` : '';
   document.querySelector('#contracts').innerHTML = metricValue(gestattungCount, gestattungUnits);
   document.querySelector('#contractRate').textContent = rateText(gestattungCount);
   document.querySelector('#open').innerHTML = metricValue(t.open||0, units.openW||0);
