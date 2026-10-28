@@ -50,7 +50,7 @@ function advisorDistribution() {
     const determined=Math.max(0,marketable-todo.unworked[0]);
     const denominator=rateBasis.checked?determined:marketable;
     return {name,leads:totals.t,units:totals.w,contracts:totals.contract||0,contractUnits:totals.contractW||0,interest:totals.interest||0,interestUnits:totals.interestW||0,nonmarketable,nonmarketableUnits,todos:todo.onsite[0]+todo.hv[0],todoUnits:todo.onsite[1]+todo.hv[1],marketable,denominator};
-  }).sort((a,b) => b.leads-a.leads || a.name.localeCompare(b.name,'de'));
+  }).sort((a,b) => a.name==='Nicht zugeordnet'?1:b.name==='Nicht zugeordnet'?-1:a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));
 }
 function advisorsForMonth(month) {
   const total = {};
