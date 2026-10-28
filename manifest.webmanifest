@@ -1,0 +1,14 @@
+{
+  "id": "./",
+  "name": "OXG Potenzialübersicht",
+  "short_name": "Potenzialübersicht",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#227f87",
+  "theme_color": "#227f87",
+  "icons": [
+    {"src": "dashboard-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},
+    {"src": "header-deutschland-tuerkis.png", "sizes": "1286x1223", "type": "image/png", "purpose": "any"}
+  ]
+}
