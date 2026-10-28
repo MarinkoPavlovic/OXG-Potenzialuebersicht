@@ -221,7 +221,7 @@ function render() {
   document.querySelector('#todoPanelTitle').textContent = `To-dos${monthSuffix}`;
   const advisorMonth = monthSelect.value === 'all' ? '' : monthLabel(monthSelect.value).replace(/\b(\d{2})(\d{2})$/, '$2');
   document.querySelector('#advisorPanelTitle').textContent = city !== 'all' && city ? `${city} Auswertung nach Berater${advisorMonth ? ` ${advisorMonth}` : ''}` : `Auswertung nach Berater${monthSuffix}`;
-  document.querySelector('#advisorPanel').hidden = monthSelect.value === 'all';
+  document.querySelector('#advisorPanel').hidden = (!monthSelect.value || monthSelect.value === 'all') && (!city || city === 'all') && selectedAdvisors.size === 0;
   const advisorRows = document.querySelector('#advisorRows');
   const advisorData = advisorDistribution();
   advisorRows.replaceChildren();
