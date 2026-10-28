@@ -7,10 +7,44 @@ const redirect=location.protocol==='file:' ? 'http://localhost:4173/' : new URL(
 const scopes='openid Files.Read';
 const login=document.querySelector('#cloudLogin'), refresh=document.querySelector('#cloudRefresh'), status=document.querySelector('#cloudStatus');
 const problems=document.querySelector('#cloudProblems'), problemList=document.querySelector('#cloudProblemList');
+const dataTimestamp=document.querySelector('#dataTimestamp');
 const periodDialog=document.querySelector('#loadPeriodDialog'), loadYear=document.querySelector('#loadYear'), loadMonthPicker=document.querySelector('#loadMonthPicker'), loadMonthSummary=document.querySelector('#loadMonthSummary'), loadMonthOptions=document.querySelector('#loadMonthOptions');
 const periodCount=document.querySelector('#loadPeriodCount'), confirmPeriod=document.querySelector('#confirmLoadPeriod');
 const monthNames=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 let accessToken=null;
+function openDataCache() {
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open('oxg-potenzial-cache',1);
+    request.onupgradeneeded=()=>request.result.createObjectStore('dashboard');
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+    request.onblocked=()=>reject(new Error('Der lokale Datenspeicher ist blockiert.'));
+  });
+}
+async function readDataCache() {
+  const db=await openDataCache();
+  try {return await new Promise((resolve,reject)=>{const tx=db.transaction('dashboard','readonly'),request=tx.objectStore('dashboard').get('latest');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
+  finally {db.close();}
+}
+async function saveDataCache(snapshot) {
+  const db=await openDataCache();
+  try {await new Promise((resolve,reject)=>{const tx=db.transaction('dashboard','readwrite');tx.objectStore('dashboard').put(snapshot,'latest');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Speichern abgebrochen.'));});}
+  finally {db.close();}
+}
+function showDataTimestamp(timestamp) {
+  const date=new Date(timestamp);
+  dataTimestamp.textContent=Number.isFinite(date.getTime()) ? `Daten geladen: ${date.toLocaleString('de-DE')}` : '';
+}
+async function restoreCachedData() {
+  try {
+    const saved=await readDataCache();
+    if(!saved || saved.version!==1 || !Array.isArray(saved.rows) || !saved.rows.length)return;
+    window.useLiveData(saved.rows,{year:saved.year,years:saved.years});
+    document.querySelector('.topbar .subtitle').textContent=saved.periodLabel;
+    showDataTimestamp(saved.loadedAt);
+    status.textContent=`${saved.periodLabel} · ${saved.fileCount} Dateien`;
+  } catch(error) { console.warn('Gespeicherte Daten konnten nicht geladen werden.',error); }
+}
 let discoveredFiles=[], previousStatus='';
 const selectedLoadMonths=new Set();
 let loadMonthCloseTimer;
@@ -98,9 +132,13 @@ async function loadFiles(files, periodLabel, selectedYear) {
     await Promise.all(Array.from({length:Math.min(4,files.length)},worker));
     if(errors.length){setProblemList(errors);status.textContent=`Die Aktualisierung ist unvollständig: ${errors.length} Datei(en) oder Ordner mit Prüfbedarf. Die bisherige Ansicht bleibt bestehen.`;return;}
     if(!rows.length)throw Error('Die Dateien enthielten keine auswertbaren Leads.');
-    window.useLiveData(rows,{year:selectedYear,years:availableYears(files)});
+    const years=availableYears(files), loadedAt=new Date().toISOString();
+    window.useLiveData(rows,{year:selectedYear,years});
     document.querySelector('.topbar .subtitle').textContent=periodLabel;
     status.textContent=`${periodLabel} · ${files.length} Dateien`;
+    showDataTimestamp(loadedAt);
+    try {await saveDataCache({version:1,rows,year:selectedYear,years,periodLabel,fileCount:files.length,loadedAt});}
+    catch(error){status.textContent+= ' · Lokales Speichern nicht möglich';console.warn('Daten konnten nicht gespeichert werden.',error);}
   } catch(error){status.textContent='Aktualisierung nicht abgeschlossen: '+error.message;}
   finally {login.disabled=false;refresh.disabled=false;}
 }
@@ -117,6 +155,7 @@ confirmPeriod.addEventListener('click',()=>{
   periodDialog.close();
   loadFiles(files,periodLabel,selectedYear);
 });
+await restoreCachedData();
 login.disabled=false;
 try { if(await exchangeCode()){login.hidden=true;refresh.hidden=false;await choosePeriod();} }
 catch(error){status.textContent=error.message;}

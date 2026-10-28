@@ -49,7 +49,7 @@
 .progress-strip{padding:6px 16px}.progress-track{height:9px}
 .filters{flex-wrap:wrap}.filters .cloud-connection{margin:0;display:flex;flex:0 0 auto;align-items:center}.filters .cloud-connection button{white-space:nowrap}.cloud-feedback{flex-basis:100%;font-size:12px;color:#5d7170}.cloud-feedback details{color:#9b3333}.cloud-feedback li{margin:4px 0}
 .filters #yearSelect{min-width:0;width:112px}.filters{gap:6px 8px}.cloud-feedback{line-height:1.15}
-.cloud-feedback:has(#cloudStatus:empty):has(#cloudProblems[hidden]){display:none}
+.cloud-feedback:has(#cloudStatus:empty):has(#dataTimestamp:empty):has(#cloudProblems[hidden]){display:none}.cloud-feedback #dataTimestamp:not(:empty){display:inline-block;margin-left:10px}.cloud-feedback #cloudStatus:empty+#dataTimestamp{margin-left:0}
 .chart-wall-main{right:calc(20% + 8px)}.chart-wall-separated{left:calc(80% + 8px)}
 .chart-wall-separated .chart-side{background:none}
 .chart-wall-separated .chart-back-grid{border-left:0}
