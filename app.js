@@ -39,10 +39,7 @@ function typeTodoTotals(records) {
   records.forEach(r=>{const we=r[3],status=r[4],determined=r[5],residence=r[6];const blank=!status,unworked=blank&&(!determined||determined==='nein'),inProgress=typeTodoStatuses.has(status)||(blank&&determined==='ja');const add=k=>{result[k][0]++;result[k][1]+=we;};if(unworked)add('unworked');if(inProgress&&['ja','nein',''].includes(residence)){add(residence==='ja'?'owner':'hv');add(typeStatusKeys[status]||'blank');}if((inProgress&&residence==='ja')||unworked)add('onsite');});
   return result;
 }
-function advisorDistribution() {
-  const groups = new Map();
-  typeRecords().forEach(record=>{const name=record[2]||'Nicht zugeordnet';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(record);});
-  return [...groups].map(([name,records])=>{
+function summarizeAdvisorRows(name, records) {
     const totals=typeRollup(records), todo=typeTodoTotals(records);
     const nonmarketableRows=records.filter(row=>nonmarketableStatuses.has(row[4]));
     const nonmarketable=nonmarketableRows.length, nonmarketableUnits=nonmarketableRows.reduce((sum,row)=>sum+row[3],0);
@@ -50,6 +47,15 @@ function advisorDistribution() {
     const determined=Math.max(0,marketable-todo.unworked[0]);
     const denominator=rateBasis.checked?determined:marketable;
     return {name,leads:totals.t,units:totals.w,contracts:totals.contract||0,contractUnits:totals.contractW||0,interest:totals.interest||0,interestUnits:totals.interestW||0,nonmarketable,nonmarketableUnits,todos:todo.onsite[0]+todo.hv[0],todoUnits:todo.onsite[1]+todo.hv[1],marketable,denominator};
+}
+function advisorDistribution() {
+  const groups = new Map();
+  typeRecords().forEach(record=>{const name=record[2]||'Nicht zugeordnet';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(record);});
+  return [...groups].map(([name,records])=>{
+    const cities=new Map();
+    records.forEach(record=>{const city=record[1]||'Nicht zugeordnet';if(!cities.has(city))cities.set(city,[]);cities.get(city).push(record);});
+    const byCity=[...cities].map(([city,rows])=>summarizeAdvisorRows(city,rows)).sort((a,b)=>a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));
+    return {...summarizeAdvisorRows(name,records),cities:byCity};
   }).sort((a,b) => a.name==='Nicht zugeordnet'?1:b.name==='Nicht zugeordnet'?-1:a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));
 }
 function advisorsForMonth(month) {
@@ -214,16 +220,33 @@ function render() {
   const advisorRows = document.querySelector('#advisorRows');
   const advisorData = advisorDistribution();
   advisorRows.replaceChildren();
-  advisorData.forEach(row => {
+  const makeAdvisorRow=(row,isCity,alternate) => {
     const tr = document.createElement('tr');
+    tr.className=`${isCity?'advisor-city-row':'advisor-main-row'}${alternate?' advisor-alternate':''}`;
     const rate=(value,base)=>base?pct(value,base):'–';
-    [row.name,number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
+    const nameCell=document.createElement('td');
+    if(isCity){nameCell.className='advisor-city-name';nameCell.textContent=`└ ${row.name}`;}
+    else if(city==='all' && row.cities.length){const button=document.createElement('button');button.type='button';button.className='advisor-city-toggle';button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',`Orte für ${row.name} anzeigen`);button.textContent=`${row.name} ▾`;nameCell.append(button);tr._advisorToggle=button;}
+    else nameCell.textContent=row.name;
+    tr.append(nameCell);
+    [number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
     [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)]].forEach(([kind,count,units,percentage])=>{
       const cell=document.createElement('td'), layout=document.createElement('div'), countEl=document.createElement('span'), unitsEl=document.createElement('span'), dotEl=document.createElement('span'), rateEl=document.createElement('span');
       cell.className=`advisor-category advisor-${kind}`;layout.className='advisor-result';countEl.className='advisor-result-count';unitsEl.className='advisor-result-units';dotEl.className='advisor-result-dot';rateEl.className='advisor-result-rate';
       countEl.textContent=number(count);unitsEl.textContent=`(${number(units)} WE)`;dotEl.textContent='·';rateEl.textContent=percentage;layout.append(countEl,unitsEl,dotEl,rateEl);cell.append(layout);tr.append(cell);
     });
+    return tr;
+  };
+  advisorData.forEach((row,index) => {
+    const alternate=index%2===1, tr=makeAdvisorRow(row,false,alternate);
     advisorRows.append(tr);
+    if(tr._advisorToggle){
+      const children=row.cities.map(cityRow=>{const child=makeAdvisorRow(cityRow,true,alternate);child.hidden=true;advisorRows.append(child);return child;});
+      const button=tr._advisorToggle;
+      const toggle=()=>{const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',`Orte für ${row.name} ${open?'ausblenden':'anzeigen'}`);button.textContent=`${row.name} ${open?'▴':'▾'}`;children.forEach(child=>{child.hidden=!open;});};
+      button.addEventListener('click',event=>{event.stopPropagation();toggle();});
+      tr.addEventListener('click',toggle);
+    }
   });
   document.querySelector('#advisorEmpty').hidden = advisorData.length !== 0;
   const units = unitTotals();
