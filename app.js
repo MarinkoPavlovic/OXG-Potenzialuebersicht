@@ -217,8 +217,9 @@ function render() {
   if(monthSelect.value && monthSelect.value!=='all')headerParts.push(monthLabel(monthSelect.value));
   document.querySelector('#dashboardTitle').textContent=headerParts.join(' · ');
   const monthSuffix = monthSelect.value === 'all' ? (yearSelect.value === 'all' ? '' : ` · ${yearSelect.value}`) : ` · ${monthLabel(monthSelect.value)}`;
-  document.querySelector('#statusPanelTitle').textContent = `Bearbeitungsstand${monthSuffix}`;
-  document.querySelector('#todoPanelTitle').textContent = `To-dos${monthSuffix}`;
+  const locationPeriodSuffix = `${city && city !== 'all' ? ` · ${city}` : ''}${monthSuffix}`;
+  document.querySelector('#statusPanelTitle').textContent = `Bearbeitungsstand${locationPeriodSuffix}`;
+  document.querySelector('#todoPanelTitle').textContent = `To-dos${locationPeriodSuffix}`;
   const advisorMonth = monthSelect.value === 'all' ? '' : monthLabel(monthSelect.value).replace(/\b(\d{2})(\d{2})$/, '$2');
   document.querySelector('#advisorPanelTitle').textContent = city !== 'all' && city ? `${city} Auswertung nach Berater${advisorMonth ? ` ${advisorMonth}` : ''}` : `Auswertung nach Berater${monthSuffix}`;
   document.querySelector('#advisorPanel').hidden = (!monthSelect.value || monthSelect.value === 'all') && (!city || city === 'all') && selectedAdvisors.size === 0;
