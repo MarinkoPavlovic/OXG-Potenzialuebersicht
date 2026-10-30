@@ -20,12 +20,12 @@ function uniqueExportRecords(records) {
   const seen=new Set();
   return records.filter(row=>{const id=normalizeAdsId(row[9]);if(!id)return true;if(seen.has(id))return false;seen.add(id);return true;});
 }
-function leadExportValues(row, includeNotes = false, category = '') {
+function leadExportValues(row, includeNotes = true, category = '') {
   const yesNo = value => value === 'ja' ? 'Ja' : value === 'nein' ? 'Nein' : value || '';
   const clearEt = ['owner','hv','onsite'].includes(category) && !String(row[4] ?? '').trim();
-  return [row[9],row[3],row[13],row[1],row[10],row[11],row[12],clearEt?'':yesNo(row[5]),clearEt?'':yesNo(row[6]),clearEt?'':yesNo(row[15]),row[4],row[16],includeNotes ? row[17] : ''];
+  return [row[2] || 'Nicht zugeordnet',row[9],row[3],row[13],row[1],row[10],row[11],row[12],clearEt?'':yesNo(row[5]),clearEt?'':yesNo(row[6]),clearEt?'':yesNo(row[15]),row[4],row[16],includeNotes ? row[17] : ''];
 }
-async function createLeadWorkbook(records, includeNotes = false, category = '') {
+async function createLeadWorkbook(records, includeNotes = true, category = '') {
   if(records.length>1048575) throw Error('Die Liste ist für eine Excel-Datei zu groß.');
   const zip=await JSZip.loadAsync(window.leadExportTemplate,{base64:true});
   const parser=new DOMParser(), serializer=new XMLSerializer();
@@ -41,6 +41,23 @@ async function createLeadWorkbook(records, includeNotes = false, category = '') 
   const originalRows=[...sheetData.getElementsByTagNameNS(exportXmlNs,'row')];
   const template=originalRows.find(row=>row.getAttribute('r')==='2');
   if(!template) throw Error('Die Excel-Vorlage enthält keine Musterzeile.');
+  const header=originalRows.find(row=>row.getAttribute('r')==='1');
+  const headerCells=[...header.getElementsByTagNameNS(exportXmlNs,'c')];
+  headerCells.forEach(cell=>{
+    const column=String(cell.getAttribute('r')).replace(/\d/g,'');
+    if(column==='N'){cell.remove();return;}
+    cell.setAttribute('r',String.fromCharCode(column.charCodeAt(0)+1)+'1');
+  });
+  const advisorHeader=xml.createElementNS(exportXmlNs,'c');
+  advisorHeader.setAttribute('r','A1');advisorHeader.setAttribute('s','11');advisorHeader.setAttribute('t','inlineStr');
+  const advisorInline=xml.createElementNS(exportXmlNs,'is'),advisorText=xml.createElementNS(exportXmlNs,'t');advisorText.textContent='Berater';advisorInline.appendChild(advisorText);advisorHeader.appendChild(advisorInline);header.insertBefore(advisorHeader,header.firstChild);
+  const columns=xml.getElementsByTagNameNS(exportXmlNs,'cols')[0];
+  [...columns.getElementsByTagNameNS(exportXmlNs,'col')].forEach(col=>{
+    const min=Number(col.getAttribute('min')),max=Number(col.getAttribute('max'));
+    if(min>=16384){col.remove();return;}
+    col.setAttribute('min',String(min+1));col.setAttribute('max',String(Math.min(16384,max+1)));
+  });
+  const advisorColumn=xml.createElementNS(exportXmlNs,'col');advisorColumn.setAttribute('min','1');advisorColumn.setAttribute('max','1');advisorColumn.setAttribute('width','24');advisorColumn.setAttribute('style','4');advisorColumn.setAttribute('customWidth','1');columns.insertBefore(advisorColumn,columns.firstChild);
   originalRows.filter(row=>row.getAttribute('r')!=='1').forEach(row=>row.remove());
   records.forEach((record,index)=>{
     const rowNumber=index+2, row=template.cloneNode(true);
@@ -50,26 +67,29 @@ async function createLeadWorkbook(records, includeNotes = false, category = '') 
     while(row.firstChild)row.removeChild(row.firstChild);
     leadExportValues(record,includeNotes,category).forEach((value,column)=>{
       if(value===null||value===undefined||value==='')return;
-      if(column===11){value=exportDateSerial(value);if(value===null)return;}
+      if(column===12){value=exportDateSerial(value);if(value===null)return;}
       const name=String.fromCharCode(65+column), cell=xml.createElementNS(exportXmlNs,'c');
-      cell.setAttribute('r',name+rowNumber);if(column===11)cell.setAttribute('s',String(dateStyleIndex));else if(styles[name])cell.setAttribute('s',styles[name]);
-      if((column===1 || column===11) && Number.isFinite(Number(value))){const v=xml.createElementNS(exportXmlNs,'v');v.textContent=String(Number(value));cell.appendChild(v);}
+      cell.setAttribute('r',name+rowNumber);if(column===12)cell.setAttribute('s',String(dateStyleIndex));else if(styles[column===0?'D':String.fromCharCode(64+column)])cell.setAttribute('s',styles[column===0?'D':String.fromCharCode(64+column)]);
+      if((column===2 || column===12) && Number.isFinite(Number(value))){const v=xml.createElementNS(exportXmlNs,'v');v.textContent=String(Number(value));cell.appendChild(v);}
       else {cell.setAttribute('t','inlineStr');const inline=xml.createElementNS(exportXmlNs,'is'),text=xml.createElementNS(exportXmlNs,'t');text.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');text.textContent=String(value);inline.appendChild(text);cell.appendChild(inline);}
       row.appendChild(cell);
     });
     sheetData.appendChild(row);
   });
   const lastRow=Math.max(2,records.length+1);
-  const dimension=xml.getElementsByTagNameNS(exportXmlNs,'dimension')[0];if(dimension)dimension.setAttribute('ref',`A1:M${lastRow}`);
-  const filter=xml.getElementsByTagNameNS(exportXmlNs,'autoFilter')[0];if(filter)filter.setAttribute('ref',`A1:M${lastRow}`);
-  [...xml.getElementsByTagNameNS(exportXmlNs,'conditionalFormatting')].forEach(node=>node.setAttribute('sqref',`A2:M${lastRow}`));
-  [...xml.getElementsByTagNameNS(exportXmlNs,'dataValidation')].forEach(node=>node.setAttribute('sqref',`H2:J${lastRow}`));
-  [...xml.getElementsByTagNameNS('http://schemas.microsoft.com/office/excel/2006/main','sqref')].forEach(node=>{if(/^K2:K\d+$/.test(node.textContent))node.textContent=`K2:K${lastRow}`;});
+  const dimension=xml.getElementsByTagNameNS(exportXmlNs,'dimension')[0];if(dimension)dimension.setAttribute('ref',`A1:N${lastRow}`);
+  const filter=xml.getElementsByTagNameNS(exportXmlNs,'autoFilter')[0];if(filter)filter.setAttribute('ref',`A1:N${lastRow}`);
+  [...xml.getElementsByTagNameNS(exportXmlNs,'conditionalFormatting')].forEach(node=>node.setAttribute('sqref',`A2:N${lastRow}`));
+  [...xml.getElementsByTagNameNS(exportXmlNs,'formula')].forEach(node=>{node.textContent=node.textContent.replace(/\$K(?=\d)/g,'$L');});
+  [...xml.getElementsByTagNameNS(exportXmlNs,'sortState')].forEach(node=>node.setAttribute('ref',`B2:N${lastRow}`));
+  [...xml.getElementsByTagNameNS(exportXmlNs,'sortCondition')].forEach(node=>{const match=/^([A-M])2:[A-M]\d+$/.exec(node.getAttribute('ref')||'');if(match){const col=String.fromCharCode(match[1].charCodeAt(0)+1);node.setAttribute('ref',`${col}2:${col}${lastRow}`);}});
+  [...xml.getElementsByTagNameNS(exportXmlNs,'dataValidation')].forEach(node=>node.setAttribute('sqref',`I2:K${lastRow}`));
+  [...xml.getElementsByTagNameNS('http://schemas.microsoft.com/office/excel/2006/main','sqref')].forEach(node=>{if(/^K2:K\d+$/.test(node.textContent))node.textContent=`L2:L${lastRow}`;});
   const pane=xml.getElementsByTagNameNS(exportXmlNs,'pane')[0];if(pane)pane.setAttribute('topLeftCell','A2');
   const view=xml.getElementsByTagNameNS(exportXmlNs,'sheetView')[0];if(view)view.setAttribute('topLeftCell','A1');
   zip.file('xl/worksheets/sheet1.xml',serializer.serializeToString(xml));
   const book=parser.parseFromString(await zip.file('xl/workbook.xml').async('string'),'application/xml');
-  [...book.getElementsByTagNameNS(exportXmlNs,'definedName')].filter(node=>node.getAttribute('name')==='_xlnm._FilterDatabase').forEach(node=>{node.textContent=`Oktober!$A$1:$M$${lastRow}`;});
+  [...book.getElementsByTagNameNS(exportXmlNs,'definedName')].filter(node=>node.getAttribute('name')==='_xlnm._FilterDatabase').forEach(node=>{node.textContent=`Oktober!$A$1:$N$${lastRow}`;});
   zip.file('xl/workbook.xml',serializer.serializeToString(book));
   return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',compression:'DEFLATE'});
 }
@@ -83,7 +103,7 @@ exportLeadButton.addEventListener('click',async()=>{
       fileHandle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Excel-Arbeitsmappe',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
     }
     const records=uniqueExportRecords(leadDetailRecords.filter(row=>!hasExistingContract(row,contractedLeadIds)));
-    const blob=await createLeadWorkbook(records,activeLeadDetail==='hv',activeLeadDetail);
+    const blob=await createLeadWorkbook(records,true,activeLeadDetail);
     if(fileHandle){const writable=await fileHandle.createWritable();await writable.write(blob);await writable.close();return;}
     const url=URL.createObjectURL(blob), link=document.createElement('a');
     link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
