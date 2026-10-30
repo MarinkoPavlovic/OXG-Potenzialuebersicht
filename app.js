@@ -235,7 +235,7 @@ function render() {
     else nameCell.textContent=row.name;
     tr.append(nameCell);
     [number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
-    [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['unworked',row.unworked,row.unworkedUnits,rate(row.unworked,row.marketable)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)]].forEach(([kind,count,units,percentage])=>{
+    [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['unworked',row.unworked,row.unworkedUnits,rate(row.unworked,row.leads)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)]].forEach(([kind,count,units,percentage])=>{
       const cell=document.createElement('td'), layout=document.createElement('div'), countEl=document.createElement('span'), unitsEl=document.createElement('span'), dotEl=document.createElement('span'), rateEl=document.createElement('span');
       cell.className=`advisor-category advisor-${kind}`;layout.className='advisor-result';countEl.className='advisor-result-count';unitsEl.className='advisor-result-units';dotEl.className='advisor-result-dot';rateEl.className='advisor-result-rate';
       countEl.textContent=number(count);unitsEl.textContent=`(${number(units)} WE)`;dotEl.textContent='·';rateEl.textContent=percentage;layout.append(countEl,unitsEl,dotEl,rateEl);cell.append(layout);tr.append(cell);
@@ -281,7 +281,7 @@ function render() {
   document.querySelector('#contracts').innerHTML = metricValue(gestattungCount, gestattungUnits);
   document.querySelector('#contractRate').textContent = rateText(gestattungCount);
   document.querySelector('#open').innerHTML = metricValue(t.open||0, units.openW||0);
-  document.querySelector('#openRate').textContent = `${marketableLeads ? pct(t.open||0,marketableLeads) : '–'} der verm. Leads`;
+  document.querySelector('#openRate').textContent = `${t.t ? pct(t.open||0,t.t) : '–'} aller Leads`;
   document.querySelector('#unresolved').innerHTML = metricValue(nonMarketable[0], nonMarketable[1]);
   document.querySelector('#unresolvedRate').textContent = `${pct(nonMarketable[0],t.t)} des Gesamtpotenzials`;
   document.querySelector('#inProgress').innerHTML = metricValue(inProgressCount, inProgressUnits);
@@ -290,7 +290,7 @@ function render() {
   document.querySelector('#noInterestRate').textContent = rateText(t.interest||0);
   const metricChartData = [
     ['Gestattung',gestattungCount,gestattungUnits,'#009f94',rateDenominator ? pct(gestattungCount,rateDenominator) : '–'],
-    ['Nicht ermittelt',t.open||0,units.openW||0,'#849da0',marketableLeads ? pct(t.open||0,marketableLeads) : '–'],
+    ['Nicht ermittelt',t.open||0,units.openW||0,'#849da0',t.t ? pct(t.open||0,t.t) : '–'],
     ['In Bearbeitung',inProgressCount,inProgressUnits,'#e8bb00',rateDenominator ? pct(inProgressCount,rateDenominator) : '–'],
     ['Kein Interesse',t.interest||0,statusUnits.interest||0,'#c75b63',rateDenominator ? pct(t.interest||0,rateDenominator) : '–'],
     ['Nicht vermarktbar',nonMarketable[0],nonMarketable[1],'#e34b4b',pct(nonMarketable[0],t.t)]
