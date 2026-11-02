@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="dashboard-app-icon.svg">
     <link rel="apple-touch-icon" href="header-deutschland-tuerkis.png?v=icon">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=20261029-beraterpunkt2">
+    <link rel="stylesheet" href="style.css?v=20261102-potential-export">
   </head>
   <body>
     <main class="shell">
@@ -111,7 +111,8 @@
           <div id="cities" class="city-list"></div>
         </article>
         <article class="panel advisor-panel" id="advisorPanel" hidden>
-          <div class="panel-head"><div><h2 id="advisorPanelTitle">Auswertung nach Berater</h2></div></div>
+          <div class="panel-head advisor-panel-head"><div><h2 id="advisorPanelTitle">Auswertung nach Berater</h2></div><button type="button" id="exportPotentialList" class="potential-export-button" disabled>Potenzialliste exportieren</button></div>
+          <p id="potentialExportStatus" class="potential-export-status" role="status" aria-live="polite"></p>
           <div class="advisor-table-wrap">
           <table class="advisor-table">
             <thead><tr><th scope="col">Berater</th><th scope="col">Leads</th><th scope="col">WE</th><th scope="col" class="advisor-contract">Gestattungen</th><th scope="col" class="advisor-unworked">Nicht ermittelt</th><th scope="col" class="advisor-todo">To-dos</th><th scope="col" class="advisor-interest">Kein Interesse</th><th scope="col" class="advisor-blocked">Nicht vermarktbar</th></tr></thead>
@@ -136,11 +137,11 @@
     <script src="nonmarketable-details.js"></script>
     <script src="todo-data.js"></script>
     <script src="lead-types-data.js"></script>
-    <script src="app.js?v=20261029-unworked1"></script>
+    <script src="app.js?v=20261102-potential-export"></script>
     <script src="lead-details.js?v=20261028-summary1"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>
-    <script src="lead-export.js"></script>
+    <script src="lead-export.js?v=20261102-potential-export"></script>
     <script type="module" src="cloud-app.js"></script>
   </body>
 </html>

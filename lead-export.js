@@ -2,7 +2,7 @@ const exportLeadButton = document.querySelector('#exportLeadDetails');
 const exportXmlNs = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
 function leadExportFilename(category, city) {
   const safe = value => String(value).replace(/[<>:"/\\|?*\x00-\x1f]/g,' ').replace(/\s+/g,' ').trim().replace(/[. ]+$/,'');
-  return `${safe(leadDetailLabels[category] || 'Leads')} – ${safe(city)}.xlsx`;
+  return `${safe((category === 'potential' ? 'Potenzialliste' : leadDetailLabels[category]) || 'Leads')} – ${safe(city)}.xlsx`;
 }
 function exportDateSerial(value) {
   const text=String(value ?? '').trim();
@@ -67,10 +67,12 @@ async function createLeadWorkbook(records, includeNotes = true, category = '') {
     while(row.firstChild)row.removeChild(row.firstChild);
     leadExportValues(record,includeNotes,category).forEach((value,column)=>{
       if(value===null||value===undefined||value==='')return;
-      if(column===12){value=exportDateSerial(value);if(value===null)return;}
+      const dateValue = column===12 ? exportDateSerial(value) : null;
+      const isDate = dateValue !== null;
+      if(column===12){if(isDate)value=dateValue;else if(category!=='potential')return;}
       const name=String.fromCharCode(65+column), cell=xml.createElementNS(exportXmlNs,'c');
-      cell.setAttribute('r',name+rowNumber);if(column===12)cell.setAttribute('s',String(dateStyleIndex));else if(styles[column===0?'D':String.fromCharCode(64+column)])cell.setAttribute('s',styles[column===0?'D':String.fromCharCode(64+column)]);
-      if((column===2 || column===12) && Number.isFinite(Number(value))){const v=xml.createElementNS(exportXmlNs,'v');v.textContent=String(Number(value));cell.appendChild(v);}
+      cell.setAttribute('r',name+rowNumber);if(isDate)cell.setAttribute('s',String(dateStyleIndex));else if(styles[column===0?'D':String.fromCharCode(64+column)])cell.setAttribute('s',styles[column===0?'D':String.fromCharCode(64+column)]);
+      if((column===2 || isDate) && Number.isFinite(Number(value))){const v=xml.createElementNS(exportXmlNs,'v');v.textContent=String(Number(value));cell.appendChild(v);}
       else {cell.setAttribute('t','inlineStr');const inline=xml.createElementNS(exportXmlNs,'is'),text=xml.createElementNS(exportXmlNs,'t');text.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');text.textContent=String(value);inline.appendChild(text);cell.appendChild(inline);}
       row.appendChild(cell);
     });
@@ -93,21 +95,49 @@ async function createLeadWorkbook(records, includeNotes = true, category = '') {
   zip.file('xl/workbook.xml',serializer.serializeToString(book));
   return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',compression:'DEFLATE'});
 }
+async function saveLeadWorkbook(filename, records, category) {
+  let fileHandle=null;
+  if(typeof window.showSaveFilePicker==='function') {
+    fileHandle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Excel-Arbeitsmappe',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
+  }
+  const blob=await createLeadWorkbook(records,true,category);
+  if(fileHandle){const writable=await fileHandle.createWritable();await writable.write(blob);await writable.close();return;}
+  const url=URL.createObjectURL(blob), link=document.createElement('a');
+  link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
 exportLeadButton.addEventListener('click',async()=>{
   if(liveRecords===null || !citySelect.value || citySelect.value==='all' || activeLeadDetail==='contract')return;
   exportLeadButton.disabled=true;
   try {
     const filename=leadExportFilename(activeLeadDetail,citySelect.value);
-    let fileHandle=null;
-    if(typeof window.showSaveFilePicker==='function') {
-      fileHandle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Excel-Arbeitsmappe',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
-    }
     const records=uniqueExportRecords(leadDetailRecords.filter(row=>!hasExistingContract(row,contractedLeadIds)));
-    const blob=await createLeadWorkbook(records,true,activeLeadDetail);
-    if(fileHandle){const writable=await fileHandle.createWritable();await writable.write(blob);await writable.close();return;}
-    const url=URL.createObjectURL(blob), link=document.createElement('a');
-    link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    await saveLeadWorkbook(filename,records,activeLeadDetail);
   } catch(error) { if(error.name!=='AbortError')leadDetailsInfo.textContent=`Excel-Export fehlgeschlagen: ${error.message}`; }
   finally {exportLeadButton.disabled=liveRecords===null || !citySelect.value || citySelect.value==='all';}
+});
+function potentialExportRecords() {
+  return typeRecords().slice().sort(compareGestattungLeads);
+}
+function potentialExportFilename() {
+  const scope=[];
+  if(citySelect.value && citySelect.value!=='all')scope.push(citySelect.value);
+  if(monthSelect.value && monthSelect.value!=='all')scope.push(monthLabel(monthSelect.value));
+  else if(yearSelect.value && yearSelect.value!=='all')scope.push(yearSelect.value);
+  return leadExportFilename('potential',scope.join(' – ') || 'Auswahl');
+}
+const exportPotentialButton=document.querySelector('#exportPotentialList');
+exportPotentialButton.addEventListener('click',async()=>{
+  if(liveRecords===null || exportPotentialButton.disabled)return;
+  const records=potentialExportRecords();
+  if(!records.length)return;
+  const status=document.querySelector('#potentialExportStatus');
+  const filename=potentialExportFilename();
+  exportPotentialButton.disabled=true;
+  status.textContent='Excel-Datei wird erstellt …';
+  try {
+    await saveLeadWorkbook(filename,records,'potential');
+    status.textContent=`${number(records.length)} Potenziale exportiert.`;
+  } catch(error) { status.textContent=error.name==='AbortError'?'':`Excel-Export fehlgeschlagen: ${error.message}`; }
+  finally {exportPotentialButton.disabled=liveRecords===null || !typeRecords().length;}
 });

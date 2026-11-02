@@ -212,6 +212,8 @@ function render() {
   document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   const t = totals(); const city = citySelect.value;
+  document.querySelector('#exportPotentialList').disabled = liveRecords === null || !liveRecords.length || !t.t;
+  document.querySelector('#potentialExportStatus').textContent = '';
   const headerParts=['Potenzialübersicht'];
   if(city && city!=='all')headerParts.push(city);
   if(monthSelect.value && monthSelect.value!=='all')headerParts.push(monthLabel(monthSelect.value));
