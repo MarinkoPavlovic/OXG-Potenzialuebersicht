@@ -3,9 +3,15 @@ const leadDetailsTitle = document.querySelector('#leadDetailsTitle');
 const leadDetailsInfo = document.querySelector('#leadDetailsInfo');
 const leadDetailsRows = document.querySelector('#leadDetailsRows');
 const moreLeadDetails = document.querySelector('#moreLeadDetails');
-const leadDetailLabels = {contract:'Gestattung',unworked:'Nicht ermittelt',owner:'Eigentümer im Objekt',hv:'Hausverwaltung',onsite:'To-dos vor Ort',inprogress:'In Bearbeitung',interest:'Kein Interesse',nonmarketable:'Nicht vermarktbar'};
+const leadDetailLabels = {contract:'Gestattung',unworked:'Nicht ermittelt',owner:'Eigentümer im Objekt',hv:'Hausverwaltung',onsite:'To-dos vor Ort',inprogress:'In Bearbeitung',interest:'Kein Interesse',nonmarketable:'Nicht vermarktbar',search:'Objektdetails'};
 let activeLeadDetail = null, leadDetailRecords = [], visibleLeadCount = 0;
 let contractedLeadIds = new Set();
+let selectedObjectRecord=null;
+function openObjectDetails(row) {
+  selectedObjectRecord=row;activeLeadDetail='search';
+  leadDetailsTitle.textContent='Objektdetails';
+  leadDetailsDialog.showModal();refreshLeadDetails();
+}
 const normalizeAdsId = value => String(value ?? '').trim().toLocaleUpperCase('de-DE');
 const existingContractStatuses = new Set(['Vertrag abgeschlossen','Vertrag online abgeschlossen','Vertrag bei anderem MB']);
 function collectContractedLeadIds(records) {
@@ -42,6 +48,7 @@ function matchesLeadDetail(row, category) {
   const status=row[4], determined=row[5], residence=row[6];
   const blank=!status, unworked=blank&&(!determined||determined==='nein');
   const inProgress=typeTodoStatuses.has(status)||(blank&&determined==='ja');
+  if(category==='search')return row===selectedObjectRecord;
   if(category==='contract')return status==='Vertrag abgeschlossen';
   if(category==='unworked')return unworked;
   if(category==='inprogress')return inProgress&&['ja','nein',''].includes(residence);
@@ -62,17 +69,18 @@ function appendLeadDetails() {
     const location=[postal,row[1]].filter(Boolean).join(' ');
     const values=[row[2]||'Nicht zugeordnet',row[9]||'–',number(row[3]),[street,location].filter(Boolean).join(', ')||'–',row[4]||'Ohne Bemerkung'];
     if(activeLeadDetail!=='contract') values.push(hasExistingContract(row,contractedLeadIds) ? '✓' : '–');
-    const detailRow=document.createElement('tr');detailRow.className='lead-expanded-row';detailRow.hidden=true;
+    const detailRow=document.createElement('tr');detailRow.className='lead-expanded-row';detailRow.hidden=activeLeadDetail!=='search';
     const arrowCell=document.createElement('td');arrowCell.className='lead-arrow-cell';arrowCell.setAttribute('aria-hidden','true');
     const detailCell=document.createElement('td');detailCell.colSpan=values.length-1;
     const fields=document.createElement('dl');fields.className='lead-extra-fields';
     [['ET ermittelt',row[5]],['ET im Objekt',row[6]],['ET kontaktiert',row[15]],['Termin',row[16]],['Notiz',row[17]]].forEach(([label,value])=>{const group=document.createElement('div'),term=document.createElement('dt'),description=document.createElement('dd');term.textContent=label;description.textContent=value||'–';group.append(term,description);fields.append(group);});
+    if(activeLeadDetail==='search'){const group=document.createElement('div'),term=document.createElement('dt'),description=document.createElement('dd');term.textContent='Monat';description.textContent=monthLabel(row[0]);group.append(term,description);fields.append(group);}
     detailCell.append(fields);detailRow.append(arrowCell,detailCell);
     let toggle;
-    values.forEach((value,index)=>{const td=document.createElement('td');if(index===1){toggle=document.createElement('button');toggle.type='button';toggle.className='lead-row-toggle';toggle.textContent=`${value} ▾`;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label',`Details für ADS-ID ${value} anzeigen`);td.append(toggle);}else {td.textContent=value;if(index===5){td.className='contract-indicator';td.setAttribute('aria-label',value==='✓'?'Vertrag in geladenen Listen vorhanden':'Kein Vertrag in geladenen Listen gefunden');td.title=value==='✓'?'Vertrag für diese ADS-ID in geladenen Listen gefunden':'Kein Vertrag für diese ADS-ID in geladenen Listen gefunden';}}tr.append(td);});
+    values.forEach((value,index)=>{const td=document.createElement('td');if(index===1){toggle=document.createElement('button');toggle.type='button';toggle.className='lead-row-toggle';toggle.textContent=`${value} ${detailRow.hidden?'▾':'▴'}`;toggle.setAttribute('aria-expanded',String(!detailRow.hidden));toggle.setAttribute('aria-label',`Details für ADS-ID ${value} anzeigen`);td.append(toggle);}else {td.textContent=value;if(index===5){td.className='contract-indicator';td.setAttribute('aria-label',value==='✓'?'Vertrag in geladenen Listen vorhanden':'Kein Vertrag in geladenen Listen gefunden');td.title=value==='✓'?'Vertrag für diese ADS-ID in geladenen Listen gefunden':'Kein Vertrag für diese ADS-ID in geladenen Listen gefunden';}}tr.append(td);});
     const toggleDetails=()=>{detailRow.hidden=!detailRow.hidden;tr.classList.toggle('is-expanded',!detailRow.hidden);toggle.setAttribute('aria-expanded',String(!detailRow.hidden));toggle.textContent=`${values[1]} ${detailRow.hidden?'▾':'▴'}`;};
     toggle.addEventListener('click',event=>{event.stopPropagation();toggleDetails();});
-    tr.className='lead-main-row';tr.addEventListener('click',toggleDetails);
+    tr.className=detailRow.hidden?'lead-main-row':'lead-main-row is-expanded';tr.addEventListener('click',toggleDetails);
     fragment.append(tr,detailRow);
   }
   leadDetailsRows.append(fragment);visibleLeadCount=next;
@@ -83,7 +91,7 @@ function refreshLeadDetails() {
   if(!leadDetailsDialog.open||!activeLeadDetail)return;
   leadDetailsRows.replaceChildren();visibleLeadCount=0;moreLeadDetails.hidden=true;
   document.querySelector('#contractIndicatorHeader').hidden=activeLeadDetail==='contract';
-  document.querySelector('#exportLeadDetails').hidden=activeLeadDetail==='contract' || !citySelect.value || citySelect.value==='all';
+  document.querySelector('#exportLeadDetails').hidden=['contract','search'].includes(activeLeadDetail) || !citySelect.value || citySelect.value==='all';
   document.querySelector('#exportLeadDetails').disabled=liveRecords===null || !citySelect.value || citySelect.value==='all';
   if(liveRecords===null){leadDetailsInfo.textContent='Für die Einzelansicht bitte zuerst die Beraterlisten über OneDrive vollständig einlesen.';return;}
   contractedLeadIds=collectContractedLeadIds(liveRecords);
