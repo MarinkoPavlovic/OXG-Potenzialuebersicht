@@ -84,6 +84,3 @@
 .advisor-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.potential-export-button{border:1px solid #32727c;border-radius:7px;background:#32727c;color:#fff;padding:9px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}.potential-export-button:hover:not(:disabled){background:#245c65}.potential-export-button:focus-visible{outline:2px solid #146d70;outline-offset:3px}.potential-export-button:disabled{opacity:.5;cursor:not-allowed}.potential-export-status{font-size:13px;color:#536d6b;margin:8px 0}.potential-export-status:empty{display:none}
 
 .filters select:disabled,.filters #reset:disabled,.advisor-picker[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
-
-/* Keep the chart at its own height when status details expand next to it. */
-.dashboard-grid > .metric-chart-panel{align-self:start}
