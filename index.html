@@ -64,9 +64,9 @@
         <article class="metric"><p>Gesamtpotenzial</p><strong id="total">–</strong><small id="scope">–</small><div class="marketable-total"><span>Vermarktbares Potenzial</span><strong id="marketableTotal">–</strong></div></article>
         <article class="metric accent detail-trigger" role="button" tabindex="0" data-detail="contract" aria-label="Leads mit Gestattung anzeigen"><p>Gestattung</p><strong id="contracts">–</strong><small id="contractRate">–</small></article>
         <article class="metric warning detail-trigger" role="button" tabindex="0" data-detail="unworked" aria-label="Nicht ermittelte Leads anzeigen"><p>Nicht ermittelt</p><strong id="open">–</strong><small id="openRate">–</small></article>
-        <article class="metric"><p>In Bearbeitung</p><strong id="inProgress">–</strong><small id="inProgressRate">–</small></article>
-        <article class="metric"><p>Kein Interesse</p><strong id="noInterest">–</strong><small id="noInterestRate">–</small></article>
-        <article class="metric"><p>Nicht vermarktbar</p><strong id="unresolved">–</strong><small id="unresolvedRate">–</small></article>
+        <article class="metric detail-trigger" role="button" tabindex="0" data-detail="inprogress" aria-label="Leads in Bearbeitung anzeigen"><p>In Bearbeitung</p><strong id="inProgress">–</strong><small id="inProgressRate">–</small></article>
+        <article class="metric detail-trigger" role="button" tabindex="0" data-detail="interest" aria-label="Leads ohne Interesse anzeigen"><p>Kein Interesse</p><strong id="noInterest">–</strong><small id="noInterestRate">–</small></article>
+        <article class="metric detail-trigger" role="button" tabindex="0" data-detail="nonmarketable" aria-label="Nicht vermarktbare Leads anzeigen"><p>Nicht vermarktbar</p><strong id="unresolved">–</strong><small id="unresolvedRate">–</small></article>
       </section>
 
       <div id="analysisSections" hidden>
@@ -138,7 +138,7 @@
     <script src="todo-data.js"></script>
     <script src="lead-types-data.js"></script>
     <script src="app.js?v=20261102-potential-export"></script>
-    <script src="lead-details.js?v=20261028-summary1"></script>
+    <script src="lead-details.js?v=20261103-status-lists"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>
     <script src="lead-export.js?v=20261102-potential-export"></script>

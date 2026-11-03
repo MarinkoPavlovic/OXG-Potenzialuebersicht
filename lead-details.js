@@ -3,7 +3,7 @@ const leadDetailsTitle = document.querySelector('#leadDetailsTitle');
 const leadDetailsInfo = document.querySelector('#leadDetailsInfo');
 const leadDetailsRows = document.querySelector('#leadDetailsRows');
 const moreLeadDetails = document.querySelector('#moreLeadDetails');
-const leadDetailLabels = {contract:'Gestattung',unworked:'Nicht ermittelt',owner:'Eigentümer im Objekt',hv:'Hausverwaltung',onsite:'To-dos vor Ort'};
+const leadDetailLabels = {contract:'Gestattung',unworked:'Nicht ermittelt',owner:'Eigentümer im Objekt',hv:'Hausverwaltung',onsite:'To-dos vor Ort',inprogress:'In Bearbeitung',interest:'Kein Interesse',nonmarketable:'Nicht vermarktbar'};
 let activeLeadDetail = null, leadDetailRecords = [], visibleLeadCount = 0;
 let contractedLeadIds = new Set();
 const normalizeAdsId = value => String(value ?? '').trim().toLocaleUpperCase('de-DE');
@@ -44,6 +44,9 @@ function matchesLeadDetail(row, category) {
   const inProgress=typeTodoStatuses.has(status)||(blank&&determined==='ja');
   if(category==='contract')return status==='Vertrag abgeschlossen';
   if(category==='unworked')return unworked;
+  if(category==='inprogress')return inProgress&&['ja','nein',''].includes(residence);
+  if(category==='interest')return status==='ET hat kein Interesse';
+  if(category==='nonmarketable')return nonmarketableStatuses.has(status);
   if(category==='owner')return inProgress&&residence==='ja';
   if(category==='hv')return inProgress&&(residence==='nein'||residence==='');
   if(category==='onsite')return (inProgress&&residence==='ja')||unworked;
