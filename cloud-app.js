@@ -12,6 +12,26 @@ const periodDialog=document.querySelector('#loadPeriodDialog'), loadYear=documen
 const periodCount=document.querySelector('#loadPeriodCount'), confirmPeriod=document.querySelector('#confirmLoadPeriod');
 const monthNames=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 let accessToken=null;
+const dashboardFilterControls=[...document.querySelectorAll('.filters select, #reset, #rateBasis')];
+const dashboardAdvisorPicker=document.querySelector('.advisor-picker');
+let filterLockSnapshot=null, loadingFiles=false;
+function setDashboardFiltersLocked(locked) {
+  if(locked) {
+    if(filterLockSnapshot)return;
+    filterLockSnapshot={controls:dashboardFilterControls.map(control=>[control,control.disabled]),advisorInert:dashboardAdvisorPicker.inert};
+    dashboardFilterControls.forEach(control=>{control.disabled=true;});
+    dashboardAdvisorPicker.open=false;
+    dashboardAdvisorPicker.inert=true;
+    dashboardAdvisorPicker.setAttribute('aria-disabled','true');
+  } else {
+    if(!filterLockSnapshot)return;
+    filterLockSnapshot.controls.forEach(([control,disabled])=>{control.disabled=disabled;});
+    dashboardAdvisorPicker.inert=filterLockSnapshot.advisorInert;
+    dashboardAdvisorPicker.removeAttribute('aria-disabled');
+    filterLockSnapshot=null;
+  }
+}
+
 function openDataCache() {
   return new Promise((resolve,reject)=>{
     const request=indexedDB.open('oxg-potenzial-cache',1);
@@ -97,6 +117,7 @@ function fillLoadMonths() {
 async function choosePeriod() {
   if(!accessToken){status.textContent='Bitte erneut mit OneDrive verbinden.';login.hidden=false;return;}
   login.disabled=true;refresh.disabled=true;setProblemList([]);
+  setDashboardFiltersLocked(true);
   previousStatus=status.textContent;
   try {
     status.textContent='Beraterordner werden gesucht …';
@@ -110,11 +131,12 @@ async function choosePeriod() {
     status.textContent=previousStatus;
     periodDialog.showModal();
   } catch(error){status.textContent='Auswahl nicht verfügbar: '+error.message;}
-  finally {login.disabled=false;refresh.disabled=false;}
+  finally {login.disabled=false;refresh.disabled=false;if(!periodDialog.open && !loadingFiles)setDashboardFiltersLocked(false);}
 }
 async function loadFiles(files, periodLabel, selectedYear) {
   if(!accessToken){status.textContent='Bitte erneut mit OneDrive verbinden.';login.hidden=false;return;}
   login.disabled=true;refresh.disabled=true;setProblemList([]);
+  loadingFiles=true;setDashboardFiltersLocked(true);
   try {
     const errors=[];
     let firstBytes;
@@ -140,11 +162,12 @@ async function loadFiles(files, periodLabel, selectedYear) {
     try {await saveDataCache({version:1,rows,year:selectedYear,years,periodLabel,fileCount:files.length,loadedAt});}
     catch(error){status.textContent+= ' · Lokales Speichern nicht möglich';console.warn('Daten konnten nicht gespeichert werden.',error);}
   } catch(error){status.textContent='Aktualisierung nicht abgeschlossen: '+error.message;}
-  finally {login.disabled=false;refresh.disabled=false;}
+  finally {loadingFiles=false;setDashboardFiltersLocked(false);login.disabled=false;refresh.disabled=false;}
 }
 login.addEventListener('click',()=>signIn().catch(error=>{status.textContent='Anmeldung nicht gestartet: '+error.message;}));
 refresh.addEventListener('click',choosePeriod);
 loadYear.addEventListener('change',fillLoadMonths);
+periodDialog.addEventListener('close',()=>{if(!loadingFiles)setDashboardFiltersLocked(false);});
 document.querySelector('#cancelLoadPeriod').addEventListener('click',()=>periodDialog.close());
 confirmPeriod.addEventListener('click',()=>{
   const chosenMonths=[...selectedLoadMonths].sort((a,b)=>a-b);
@@ -152,8 +175,8 @@ confirmPeriod.addEventListener('click',()=>{
   if(!files.length)return;
   const selectedYear=loadYear.value;
   const periodLabel=[selectedYear==='all'?'Alle Jahre':selectedYear,chosenMonths.length===0?'alle Monate':chosenMonths.map(month=>monthNames[month-1]).join(', ')].join(' · ');
-  periodDialog.close();
   loadFiles(files,periodLabel,selectedYear);
+  periodDialog.close();
 });
 await restoreCachedData();
 login.disabled=false;
