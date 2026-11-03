@@ -47,3 +47,9 @@ function refreshObjectSearch() {
 objectSearchInput.addEventListener('input',refreshObjectSearch);
 moreObjectResults.addEventListener('click',appendObjectResults);
 window.refreshObjectSearch=refreshObjectSearch;
+
+document.querySelector('#clearObjectSearch').addEventListener('click',()=>{
+  objectSearchInput.value='';
+  refreshObjectSearch();
+  objectSearchInput.focus();
+});

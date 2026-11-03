@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="dashboard-app-icon.svg">
     <link rel="apple-touch-icon" href="header-deutschland-tuerkis.png?v=icon">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=20261103-object-search">
+    <link rel="stylesheet" href="style.css?v=20261103-compact-search">
   </head>
   <body>
     <main class="shell">
@@ -122,7 +122,10 @@
           <p id="advisorEmpty" class="advisor-empty" hidden>Keine Leads für diese Auswahl.</p>
           <section class="object-search" aria-label="Objektsuche">
             <label for="objectSearchInput">Objekt suchen</label>
+            <div class="object-search-field">
             <input id="objectSearchInput" type="search" placeholder="Straße oder Straße mit Ort eingeben" autocomplete="off" aria-describedby="objectSearchInfo" aria-controls="objectSearchResults">
+              <button type="button" id="clearObjectSearch" class="object-search-clear" aria-label="Objektsuche löschen">Löschen</button>
+            </div>
             <p id="objectSearchInfo" class="object-search-info" role="status" aria-live="polite"></p>
             <ul id="objectSearchResults" class="object-search-results"></ul>
             <button type="button" id="moreObjectResults" class="potential-export-button" hidden>Weitere Treffer anzeigen</button>
@@ -146,10 +149,10 @@
     <script src="lead-types-data.js"></script>
     <script src="app.js?v=20261103-object-search"></script>
     <script src="lead-details.js?v=20261103-object-search"></script>
-    <script src="object-search.js?v=20261103-object-search"></script>
+    <script src="object-search.js?v=20261103-compact-search"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>
     <script src="lead-export.js?v=20261102-potential-export"></script>
-    <script type="module" src="cloud-app.js?v=20261103-object-search"></script>
+    <script type="module" src="cloud-app.js?v=20261103-compact-search"></script>
   </body>
 </html>
