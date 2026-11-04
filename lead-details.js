@@ -9,7 +9,6 @@ let contractedLeadIds = new Set();
 let selectedObjectRecord=null;
 function openObjectDetails(row) {
   selectedObjectRecord=row;activeLeadDetail='search';
-  leadDetailsTitle.textContent='Objektdetails';
   leadDetailsDialog.showModal();refreshLeadDetails();
 }
 const normalizeAdsId = value => String(value ?? '').trim().toLocaleUpperCase('de-DE');
@@ -91,8 +90,21 @@ function canExportLeadDetails() {
   const hasFilter = [citySelect, yearSelect, monthSelect, leadTypeSelect].some(select => select.value && select.value !== 'all') || selectedAdvisors.size > 0;
   return Boolean(activeLeadDetail && !['contract', 'search'].includes(activeLeadDetail) && hasFilter);
 }
+function leadDetailsHeading() {
+  const title = leadDetailLabels[activeLeadDetail];
+  if (activeLeadDetail === 'search') return title;
+  const parts = [title];
+  if (citySelect.value && citySelect.value !== 'all') parts.push(citySelect.value);
+  if (monthSelect.value && monthSelect.value !== 'all') parts.push(monthLabel(monthSelect.value));
+  else if (yearSelect.value && yearSelect.value !== 'all') parts.push(yearSelect.value);
+  if (selectedAdvisors.size) parts.push([...selectedAdvisors].sort(addressCollator.compare).join(', '));
+  if (leadTypeSelect.value === 'new') parts.push('Neue Leads');
+  if (leadTypeSelect.value === 'old') parts.push('Alte Leads');
+  return parts.join(' · ');
+}
 function refreshLeadDetails() {
   if(!leadDetailsDialog.open||!activeLeadDetail)return;
+  leadDetailsTitle.textContent = leadDetailsHeading();
   leadDetailsRows.replaceChildren();visibleLeadCount=0;moreLeadDetails.hidden=true;
   document.querySelector('#contractIndicatorHeader').hidden=activeLeadDetail==='contract';
   document.querySelector('#exportLeadDetails').hidden = !canExportLeadDetails();
@@ -104,7 +116,7 @@ function refreshLeadDetails() {
 }
 window.refreshLeadDetails=refreshLeadDetails;
 document.querySelectorAll('.detail-trigger').forEach(trigger=>{
-  const open=()=>{activeLeadDetail=trigger.dataset.detail;leadDetailsTitle.textContent=leadDetailLabels[activeLeadDetail];leadDetailsDialog.showModal();refreshLeadDetails();};
+  const open=()=>{activeLeadDetail=trigger.dataset.detail;leadDetailsDialog.showModal();refreshLeadDetails();};
   trigger.addEventListener('click',open);
   trigger.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
 });
