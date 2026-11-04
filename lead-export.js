@@ -107,14 +107,21 @@ async function saveLeadWorkbook(filename, records, category) {
   setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 exportLeadButton.addEventListener('click',async()=>{
-  if(liveRecords===null || !citySelect.value || citySelect.value==='all' || activeLeadDetail==='contract')return;
+  if(liveRecords===null || !canExportLeadDetails())return;
   exportLeadButton.disabled=true;
   try {
-    const filename=leadExportFilename(activeLeadDetail,citySelect.value);
+    const city = citySelect.value;
+    const month = monthSelect.value;
+    const year = yearSelect.value;
+    const scope = city && city !== 'all' ? city
+      : month && month !== 'all' ? monthLabel(month)
+      : year && year !== 'all' ? year
+      : selectedAdvisors.size === 1 ? [...selectedAdvisors][0] : 'Auswahl';
+    const filename=leadExportFilename(activeLeadDetail,scope);
     const records=uniqueExportRecords(leadDetailRecords.filter(row=>!hasExistingContract(row,contractedLeadIds)));
     await saveLeadWorkbook(filename,records,activeLeadDetail);
   } catch(error) { if(error.name!=='AbortError')leadDetailsInfo.textContent=`Excel-Export fehlgeschlagen: ${error.message}`; }
-  finally {exportLeadButton.disabled=liveRecords===null || !citySelect.value || citySelect.value==='all';}
+  finally {exportLeadButton.disabled=liveRecords===null || !canExportLeadDetails();}
 });
 function potentialExportRecords() {
   return typeRecords().slice().sort(compareGestattungLeads);

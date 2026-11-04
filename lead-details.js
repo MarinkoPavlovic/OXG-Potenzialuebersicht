@@ -87,12 +87,16 @@ function appendLeadDetails() {
   moreLeadDetails.hidden=visibleLeadCount>=leadDetailRecords.length;
   leadDetailsInfo.textContent=formatLeadSummary(leadDetailRecords,visibleLeadCount);
 }
+function canExportLeadDetails() {
+  const hasFilter = [citySelect, yearSelect, monthSelect, leadTypeSelect].some(select => select.value && select.value !== 'all') || selectedAdvisors.size > 0;
+  return Boolean(activeLeadDetail && !['contract', 'search'].includes(activeLeadDetail) && hasFilter);
+}
 function refreshLeadDetails() {
   if(!leadDetailsDialog.open||!activeLeadDetail)return;
   leadDetailsRows.replaceChildren();visibleLeadCount=0;moreLeadDetails.hidden=true;
   document.querySelector('#contractIndicatorHeader').hidden=activeLeadDetail==='contract';
-  document.querySelector('#exportLeadDetails').hidden=['contract','search'].includes(activeLeadDetail) || !citySelect.value || citySelect.value==='all';
-  document.querySelector('#exportLeadDetails').disabled=liveRecords===null || !citySelect.value || citySelect.value==='all';
+  document.querySelector('#exportLeadDetails').hidden = !canExportLeadDetails();
+  document.querySelector('#exportLeadDetails').disabled = liveRecords === null || !canExportLeadDetails();
   if(liveRecords===null){leadDetailsInfo.textContent='Für die Einzelansicht bitte zuerst die Beraterlisten über OneDrive vollständig einlesen.';return;}
   contractedLeadIds=collectContractedLeadIds(liveRecords);
   leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail)).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
