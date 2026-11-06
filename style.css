@@ -89,4 +89,13 @@
 
 .object-search-field{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.object-search-clear{box-sizing:border-box;height:32px;padding:4px 12px;border:1px solid #b6ccc6;border-radius:7px;background:#edf6f3;color:#123d3e;font:inherit;font-size:13px;font-weight:650;cursor:pointer}.object-search-clear:hover:not(:disabled){background:#dfede7}.object-search-clear:focus-visible{outline:2px solid #32727c;outline-offset:2px}.object-search-clear:disabled{opacity:.5;cursor:not-allowed}
 
-.advisor-table .advisor-total-row > *{border-top:2px solid #32727c;font-weight:800}.advisor-table .advisor-total-row > th{background:#e9f2ef;color:#123d3e;font-size:14px}
+.advisor-table tfoot .advisor-total-row > th,
+.advisor-table tfoot .advisor-total-row > td {
+  background: #f1f2f3;
+  border-top: 2px solid #32727c;
+  font-weight: 800;
+}
+.advisor-table .advisor-total-row > th {
+  color: #123d3e;
+  font-size: 14px;
+}
