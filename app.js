@@ -229,13 +229,14 @@ function render() {
   const advisorRows = document.querySelector('#advisorRows');
   const advisorData = advisorDistribution();
   advisorRows.replaceChildren();
-  const makeAdvisorRow=(row,isCity,alternate) => {
+  const makeAdvisorRow=(row,isCity,alternate,isTotal=false) => {
     const tr = document.createElement('tr');
-    tr.className=`${isCity?'advisor-city-row':'advisor-main-row'}${alternate?' advisor-alternate':''}`;
+    tr.className=`${isCity?'advisor-city-row':'advisor-main-row'}${alternate?' advisor-alternate':''}${isTotal?' advisor-total-row':''}`;
     const rate=(value,base)=>base?pct(value,base):'–';
-    const nameCell=document.createElement('td');
+    const nameCell=document.createElement(isTotal?'th':'td');
+    if(isTotal)nameCell.setAttribute('scope','row');
     if(isCity){nameCell.className='advisor-city-name';nameCell.textContent=`└ ${row.name}`;}
-    else if(city==='all' && row.cities.length){const button=document.createElement('button');button.type='button';button.className='advisor-city-toggle';button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',`Orte für ${row.name} anzeigen`);button.textContent=`${row.name} ▾`;nameCell.append(button);tr._advisorToggle=button;}
+    else if(!isTotal && city==='all' && row.cities.length){const button=document.createElement('button');button.type='button';button.className='advisor-city-toggle';button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',`Orte für ${row.name} anzeigen`);button.textContent=`${row.name} ▾`;nameCell.append(button);tr._advisorToggle=button;}
     else nameCell.textContent=row.name;
     tr.append(nameCell);
     [number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
@@ -257,6 +258,8 @@ function render() {
       tr.addEventListener('click',toggle);
     }
   });
+  const advisorTotals = {...summarizeAdvisorRows('Gesamt', typeRecords()), cities: []};
+  document.querySelector('#advisorTotals').replaceChildren(makeAdvisorRow(advisorTotals, false, false, true));
   document.querySelector('#advisorEmpty').hidden = advisorData.length !== 0;
   const units = unitTotals();
   const selectedCityAdvisorRows = !useRecords() && city !== 'all' && advisorSelect.value === 'all' ? Object.values(advisorCityDataAll[monthSelect.value]?.[city] || {}) : null;
