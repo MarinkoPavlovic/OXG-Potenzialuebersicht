@@ -214,11 +214,3 @@
 .city-potential-advisor .city-potential-unworked { background: #fafbfa; }
 .city-potential-advisor .city-potential-inprogress { background: #fffef7; }
 .city-potential-street:has(.city-potential-toggle) { cursor: pointer; }
-
-.city-potential-assignment-month {
-  display: block;
-  margin-top: 2px;
-  color: #637773;
-  font-size: 11px;
-  font-weight: 500;
-}

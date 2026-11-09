@@ -190,13 +190,8 @@ function refreshCityPotential() {
       child.hidden = true;
       const advisorRows = street.advisors.map(advisor => {
         const months = advisor.months.map(month => monthLabel(month)).join(', ');
-        const advisorRow = makeCityPotentialRow(advisor.name, advisor, 'advisor');
-        if (months) {
-          const assignmentMonth = document.createElement('small');
-          assignmentMonth.className = 'city-potential-assignment-month';
-          assignmentMonth.textContent = months;
-          advisorRow.firstChild.append(assignmentMonth);
-        }
+        const label = months ? `${advisor.name} (${months})` : advisor.name;
+        const advisorRow = makeCityPotentialRow(label, advisor, 'advisor');
         advisorRow.hidden = true;
         return advisorRow;
       });
