@@ -36,7 +36,16 @@ function preferPotentialAddress(candidate, current) {
 }
 
 function emptyCityPotentialTotals() {
-  return {total: 0, contract: 0, nonmarketable: 0, interest: 0, unworked: 0, inprogress: 0};
+  return {
+    total: 0,
+    units: 0,
+    contract: 0,
+    nonmarketable: 0,
+    interest: 0,
+    unworked: 0,
+    inprogress: 0,
+    categoryUnits: Object.fromEntries(cityPotentialCategories.map(category => [category, 0])),
+  };
 }
 
 function buildUniquePotentialSummary(allRecords, selectedRecords) {
@@ -53,10 +62,19 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
   });
 
   const selectedObjects = new Map();
+  const objectUnits = new Map();
   selectedRecords.forEach((row, index) => {
     const key = keys.get(row) ?? uniquePotentialKey(row, allRecords.length + index);
     const previous = selectedObjects.get(key);
     if (!previous || preferPotentialAddress(row, previous)) selectedObjects.set(key, row);
+    const units = Number(row[3]);
+    const period = String(row[0] ?? '');
+    const previousUnits = objectUnits.get(key);
+    // Use the latest available WE value once per object. For conflicting values in one month, use the larger value.
+    if (Number.isFinite(units) && units >= 0 &&
+        (!previousUnits || period > previousUnits.period || (period === previousUnits.period && units > previousUnits.value))) {
+      objectUnits.set(key, {period, value: units});
+    }
   });
 
   const cities = new Map();
@@ -73,9 +91,12 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     if (!city.streets.has(streetKey)) city.streets.set(streetKey, {name: streetName, ...emptyCityPotentialTotals()});
     const street = city.streets.get(streetKey);
     const category = bestCategories.get(key) ?? uniquePotentialCategory(row);
+    const units = objectUnits.get(key)?.value ?? 0;
     for (const group of [totals, city, street]) {
       group.total += 1;
+      group.units += units;
       group[category] += 1;
+      group.categoryUnits[category] += units;
     }
     if (key.startsWith('address:')) addressIdentified += 1;
     if (key.startsWith('unidentified:')) unidentified += 1;
@@ -98,14 +119,21 @@ function makeCityPotentialRow(name, totals, kind) {
   const count = document.createElement('td');
   count.textContent = number(totals.total);
   row.append(count);
+  const unitTotal = document.createElement('td');
+  unitTotal.textContent = number(totals.units);
+  row.append(unitTotal);
   cityPotentialCategories.forEach(category => {
     const cell = document.createElement('td');
     cell.className = `city-potential-category city-potential-${category}`;
     const value = document.createElement('strong');
+    const units = document.createElement('small');
+    units.className = 'city-potential-units';
+    units.textContent = `(${number(totals.categoryUnits[category])} WE)`;
     const rate = document.createElement('span');
+    rate.className = 'city-potential-rate';
     value.textContent = number(totals[category]);
     rate.textContent = totals.total ? pct(totals[category], totals.total) : '–';
-    cell.append(value, rate);
+    cell.append(value, units, rate);
     row.append(cell);
   });
   return row;
