@@ -124,11 +124,12 @@ exportLeadButton.addEventListener('click',async()=>{
   finally {exportLeadButton.disabled=liveRecords===null || !canExportLeadDetails();}
 });
 function potentialExportRecords() {
-  return typeRecords().slice().sort(compareGestattungLeads);
+  return advisorRecords().slice().sort(compareGestattungLeads);
 }
 function potentialExportFilename() {
   const scope=[];
   if(citySelect.value && citySelect.value!=='all')scope.push(citySelect.value);
+  if(advisorStreetSelect.value)scope.push(advisorStreetSelect.value);
   if(monthSelect.value && monthSelect.value!=='all')scope.push(monthLabel(monthSelect.value));
   else if(yearSelect.value && yearSelect.value!=='all')scope.push(yearSelect.value);
   return leadExportFilename('potential',scope.join(' – ') || 'Auswahl');
@@ -146,5 +147,5 @@ exportPotentialButton.addEventListener('click',async()=>{
     await saveLeadWorkbook(filename,records,'potential');
     status.textContent=`${number(records.length)} Potenziale exportiert.`;
   } catch(error) { status.textContent=error.name==='AbortError'?'':`Excel-Export fehlgeschlagen: ${error.message}`; }
-  finally {exportPotentialButton.disabled=liveRecords===null || !typeRecords().length;}
+  finally {exportPotentialButton.disabled=liveRecords===null || !advisorRecords().length;}
 });

@@ -12,7 +12,7 @@ const periodDialog=document.querySelector('#loadPeriodDialog'), loadYear=documen
 const periodCount=document.querySelector('#loadPeriodCount'), confirmPeriod=document.querySelector('#confirmLoadPeriod');
 const monthNames=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 let accessToken=null;
-const dashboardFilterControls=[...document.querySelectorAll('.filters select, #reset, #rateBasis, #objectSearchInput, #clearObjectSearch')];
+const dashboardFilterControls=[...document.querySelectorAll('.filters select, #reset, #rateBasis, #objectSearchInput, #clearObjectSearch, #advisorStreetSelect')];
 const dashboardAdvisorPicker=document.querySelector('.advisor-picker');
 let filterLockSnapshot=null, loadingFiles=false;
 function setDashboardFiltersLocked(locked) {

@@ -10,7 +10,7 @@ function normalizeObjectAddress(value) {
 function findObjects(query) {
   const terms=normalizeObjectAddress(query).replace(/\b(\d+)\s+(\p{L})\b/gu,'$1$2').split(/\s+/).filter(Boolean);
   if(!terms.length || liveRecords===null)return [];
-  return typeRecords().filter(row=>{
+  return advisorRecords().filter(row=>{
     const address=normalizeObjectAddress([row[10],row[11],row[12],row[13],row[1]].filter(value=>value!==null&&value!==undefined).join(' '));
     const addressWords=address.split(/\s+/);
     const house=normalizeObjectAddress([row[11],row[12]].filter(value=>value!==null&&value!==undefined).join(' '));

@@ -3,6 +3,8 @@ const months = Object.keys(data);
 const yearSelect = document.querySelector('#yearSelect');
 const monthSelect = document.querySelector('#monthSelect');
 const citySelect = document.querySelector('#citySelect');
+const advisorStreetSelect = document.querySelector('#advisorStreetSelect');
+let advisorStreetCity = null;
 const advisorSelect = document.querySelector('#advisorSelect');
 const advisorOptions = document.querySelector('#advisorOptions');
 const advisorSummary = document.querySelector('#advisorSummary');
@@ -48,9 +50,30 @@ function summarizeAdvisorRows(name, records) {
     const denominator=rateBasis.checked?determined:marketable;
     return {name,leads:totals.t,units:totals.w,contracts:totals.contract||0,contractUnits:totals.contractW||0,unworked:todo.unworked[0],unworkedUnits:todo.unworked[1],interest:totals.interest||0,interestUnits:totals.interestW||0,nonmarketable,nonmarketableUnits,todos:todo.onsite[0]+todo.hv[0],todoUnits:todo.onsite[1]+todo.hv[1],marketable,denominator};
 }
+function updateAdvisorStreetFilter() {
+  const city = citySelect.value;
+  const hasCity = Boolean(city && city !== 'all');
+  const field = document.querySelector('#advisorStreetFilter');
+  field.hidden = !hasCity;
+  const streets = hasCity
+    ? [...new Set(typeRecords().map(row => String(row[10] ?? '').trim()).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, 'de', {sensitivity: 'base', numeric: true}))
+    : [];
+  const previousStreet = advisorStreetCity === city ? advisorStreetSelect.value : '';
+  advisorStreetSelect.replaceChildren(new Option('Alle Straßen', ''));
+  streets.forEach(street => advisorStreetSelect.add(new Option(street, street)));
+  advisorStreetSelect.value = streets.includes(previousStreet) ? previousStreet : '';
+  advisorStreetCity = city;
+}
+function advisorRecords() {
+  const records = typeRecords();
+  const street = advisorStreetSelect.value;
+  if (!citySelect.value || citySelect.value === 'all' || !street) return records;
+  return records.filter(row => String(row[10] ?? '').trim() === street);
+}
 function advisorDistribution() {
   const groups = new Map();
-  typeRecords().forEach(record=>{const name=record[2]||'Nicht zugeordnet';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(record);});
+  advisorRecords().forEach(record=>{const name=record[2]||'Nicht zugeordnet';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(record);});
   return [...groups].map(([name,records])=>{
     const cities=new Map();
     records.forEach(record=>{const city=record[1]||'Nicht zugeordnet';if(!cities.has(city))cities.set(city,[]);cities.get(city).push(record);});
@@ -209,11 +232,12 @@ function todoTotals() {
   return result;
 }
 function render() {
+  updateAdvisorStreetFilter();
   document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   if (window.refreshObjectSearch) window.refreshObjectSearch();
   const t = totals(); const city = citySelect.value;
-  document.querySelector('#exportPotentialList').disabled = liveRecords === null || !liveRecords.length || !t.t;
+  document.querySelector('#exportPotentialList').disabled = liveRecords === null || !advisorRecords().length;
   document.querySelector('#potentialExportStatus').textContent = '';
   const headerParts=['Potenzialübersicht'];
   if(city && city!=='all')headerParts.push(city);
@@ -225,6 +249,7 @@ function render() {
   document.querySelector('#todoPanelTitle').textContent = `To-dos${locationPeriodSuffix}`;
   const advisorMonth = monthSelect.value === 'all' ? '' : monthLabel(monthSelect.value).replace(/\b(\d{2})(\d{2})$/, '$2');
   document.querySelector('#advisorPanelTitle').textContent = city !== 'all' && city ? `${city} Auswertung nach Berater${advisorMonth ? ` ${advisorMonth}` : ''}` : `Auswertung nach Berater${monthSuffix}`;
+  if(advisorStreetSelect.value)document.querySelector('#advisorPanelTitle').textContent += ` · ${advisorStreetSelect.value}`;
   document.querySelector('#advisorPanel').hidden = (!monthSelect.value || monthSelect.value === 'all') && (!city || city === 'all') && selectedAdvisors.size === 0;
   const advisorRows = document.querySelector('#advisorRows');
   const advisorData = advisorDistribution();
@@ -258,7 +283,7 @@ function render() {
       tr.addEventListener('click',toggle);
     }
   });
-  const advisorTotals = {...summarizeAdvisorRows('Gesamt', typeRecords()), cities: []};
+  const advisorTotals = {...summarizeAdvisorRows('Gesamt', advisorRecords()), cities: []};
   document.querySelector('#advisorTotals').replaceChildren(makeAdvisorRow(advisorTotals, false, false, true));
   document.querySelector('#advisorEmpty').hidden = advisorData.length !== 0;
   const units = unitTotals();
@@ -355,6 +380,7 @@ yearSelect.addEventListener('change',()=>{monthSelect.value='all';reconcileFilte
 monthSelect.addEventListener('change',()=>{reconcileFilters();render()}); citySelect.addEventListener('change',()=>{reconcileFilters();render()});
 leadTypeSelect.addEventListener('change',()=>{reconcileFilters();render()});
 rateBasis.addEventListener('change',render);
+advisorStreetSelect.addEventListener('change',render);
 document.querySelector('#reset').addEventListener('click',()=>{yearSelect.value='all';monthSelect.value='all';leadTypeSelect.value='all';citySelect.value='all';selectedAdvisors.clear();rateBasis.checked=false;reconcileFilters();render()});
 reconcileFilters(); render();
-window.useLiveData = (records,selection={}) => { liveRecords=records; liveAvailableYears=selection.years ? [...new Set(selection.years.map(String))].sort((a,b)=>b.localeCompare(a)) : null; months.splice(0,months.length,...[...new Set(records.map(r=>r[0]))].sort()); yearSelect.value='all'; monthSelect.value='all';citySelect.value='all';leadTypeSelect.value='all';selectedAdvisors.clear();reconcileFilters();if(selection.year && selection.year!=='all' && records.some(r=>r[0].startsWith(selection.year+'-'))){yearSelect.value=selection.year;reconcileFilters();}render(); };
+window.useLiveData = (records,selection={}) => { advisorStreetSelect.value='';advisorStreetCity=null;liveRecords=records; liveAvailableYears=selection.years ? [...new Set(selection.years.map(String))].sort((a,b)=>b.localeCompare(a)) : null; months.splice(0,months.length,...[...new Set(records.map(r=>r[0]))].sort()); yearSelect.value='all'; monthSelect.value='all';citySelect.value='all';leadTypeSelect.value='all';selectedAdvisors.clear();reconcileFilters();if(selection.year && selection.year!=='all' && records.some(r=>r[0].startsWith(selection.year+'-'))){yearSelect.value=selection.year;reconcileFilters();}render(); };
