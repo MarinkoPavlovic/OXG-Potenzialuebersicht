@@ -236,6 +236,7 @@ function render() {
   document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   if (window.refreshObjectSearch) window.refreshObjectSearch();
+  if (window.refreshCityPotential) window.refreshCityPotential();
   const t = totals(); const city = citySelect.value;
   document.querySelector('#exportPotentialList').disabled = liveRecords === null || !advisorRecords().length;
   document.querySelector('#potentialExportStatus').textContent = '';

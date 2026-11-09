@@ -121,3 +121,26 @@
   box-sizing: border-box;
   height: 36px;
 }
+
+.city-potential-panel { grid-column: 1 / -1; min-width: 0; }
+.city-potential-help { color: #536d6b; font-size: 13px; line-height: 1.5; margin: 12px 0; }
+.city-potential-help:empty { display: none; }
+.city-potential-table-wrap { overflow-x: auto; margin-top: 18px; }
+.city-potential-table { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.city-potential-table th, .city-potential-table td { padding: 11px 12px; border-bottom: 1px solid #dfe9e5; text-align: right; }
+.city-potential-table th:first-child { text-align: left; min-width: 180px; }
+.city-potential-table thead th { color: #536d6b; font-size: 12px; }
+.city-potential-table td.city-potential-category { white-space: nowrap; }
+.city-potential-category strong { display: inline-block; min-width: 3ch; }
+.city-potential-category span { display: inline-block; min-width: 5ch; margin-left: 10px; color: #536d6b; font-size: 12px; }
+.city-potential-contract { background: #e5f4e8; }
+.city-potential-nonmarketable { background: #f8e6e8; }
+.city-potential-interest { background: #fceeee; }
+.city-potential-unworked { background: #eff1f0; }
+.city-potential-inprogress { background: #fff8dc; }
+.city-potential-street th { padding-left: 26px; font-weight: 500; }
+.city-potential-street { color: #536d6b; }
+.city-potential-street[hidden] { display: none; }
+.city-potential-toggle { border: 0; padding: 0; background: transparent; font: inherit; font-weight: 700; color: #146d70; cursor: pointer; text-align: left; }
+.city-potential-toggle:focus-visible { outline: 2px solid #32727c; outline-offset: 3px; }
+.city-potential-table .city-potential-total > * { background: #f1f2f3; border-top: 2px solid #32727c; font-weight: 800; }
