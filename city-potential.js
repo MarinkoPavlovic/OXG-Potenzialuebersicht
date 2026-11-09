@@ -1,5 +1,6 @@
 const cityPotentialCollator = new Intl.Collator('de-DE', {numeric: true, sensitivity: 'base'});
-const cityPotentialCategories = ['contract', 'nonmarketable', 'interest', 'unworked', 'inprogress'];
+const cityPotentialCategories = ['contract', 'unworked', 'inprogress', 'interest', 'nonmarketable'];
+const cityPotentialPriority = ['contract', 'nonmarketable', 'interest', 'unworked', 'inprogress'];
 
 function normalizePotentialLocation(value) {
   return String(value ?? '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('de-DE');
@@ -56,7 +57,7 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     keys.set(row, key);
     const category = uniquePotentialCategory(row);
     const previous = bestCategories.get(key);
-    if (!previous || cityPotentialCategories.indexOf(category) < cityPotentialCategories.indexOf(previous)) {
+    if (!previous || cityPotentialPriority.indexOf(category) < cityPotentialPriority.indexOf(previous)) {
       bestCategories.set(key, category);
     }
   });
