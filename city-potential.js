@@ -76,10 +76,11 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     const category = uniquePotentialCategory(row);
     const assignment = assignments.get(advisorKey);
     if (!assignment) {
-      assignments.set(advisorKey, {name: advisorName, category});
+      assignments.set(advisorKey, {name: advisorName, category, months: new Set([row[0]].filter(Boolean))});
     } else {
       if (cityPotentialPriority.indexOf(category) < cityPotentialPriority.indexOf(assignment.category)) assignment.category = category;
       if (advisorName < assignment.name) assignment.name = advisorName;
+      if (row[0]) assignment.months.add(row[0]);
     }
     const units = Number(row[3]);
     const period = String(row[0] ?? '');
@@ -113,8 +114,9 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
       group.categoryUnits[category] += units;
     }
     objectAdvisors.get(key).forEach((assignment, advisorKey) => {
-      if (!street.advisors.has(advisorKey)) street.advisors.set(advisorKey, {name: assignment.name, ...emptyCityPotentialTotals()});
+      if (!street.advisors.has(advisorKey)) street.advisors.set(advisorKey, {name: assignment.name, months: new Set(), ...emptyCityPotentialTotals()});
       const advisor = street.advisors.get(advisorKey);
+      assignment.months.forEach(month => advisor.months.add(month));
       advisor.total += 1;
       advisor.units += units;
       advisor[assignment.category] += 1;
@@ -130,6 +132,7 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     city.streets = [...city.streets.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
     city.streets.forEach(street => {
       street.advisors = [...street.advisors.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
+      street.advisors.forEach(advisor => { advisor.months = [...advisor.months].sort(); });
     });
   });
   return {cities: sortedCities, totals, addressIdentified, unidentified};
@@ -186,7 +189,9 @@ function refreshCityPotential() {
       const child = makeCityPotentialRow(street.name, street, 'street');
       child.hidden = true;
       const advisorRows = street.advisors.map(advisor => {
-        const advisorRow = makeCityPotentialRow(advisor.name, advisor, 'advisor');
+        const months = advisor.months.map(month => monthLabel(month)).join(', ');
+        const label = months ? `${advisor.name} (${months})` : advisor.name;
+        const advisorRow = makeCityPotentialRow(label, advisor, 'advisor');
         advisorRow.hidden = true;
         return advisorRow;
       });
