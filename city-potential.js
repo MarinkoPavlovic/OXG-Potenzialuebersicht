@@ -1,6 +1,6 @@
 const cityPotentialCollator = new Intl.Collator('de-DE', {numeric: true, sensitivity: 'base'});
 const cityPotentialCategories = ['contract', 'unworked', 'inprogress', 'interest', 'nonmarketable'];
-const cityPotentialPriority = ['contract', 'nonmarketable', 'interest', 'unworked', 'inprogress'];
+const cityPotentialPriority = ['contract', 'nonmarketable', 'interest', 'inprogress', 'unworked'];
 
 function normalizePotentialLocation(value) {
   return String(value ?? '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('de-DE');
