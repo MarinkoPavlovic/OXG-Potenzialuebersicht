@@ -131,8 +131,13 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
   sortedCities.forEach(city => {
     city.streets = [...city.streets.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
     city.streets.forEach(street => {
-      street.advisors = [...street.advisors.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
+      street.advisors = [...street.advisors.values()];
       street.advisors.forEach(advisor => { advisor.months = [...advisor.months].sort(); });
+      street.advisors.sort((a, b) => {
+        const firstMonthA = a.months[0] ?? '9999-99';
+        const firstMonthB = b.months[0] ?? '9999-99';
+        return firstMonthA.localeCompare(firstMonthB) || cityPotentialCollator.compare(a.name, b.name);
+      });
     });
   });
   return {cities: sortedCities, totals, addressIdentified, unidentified};
