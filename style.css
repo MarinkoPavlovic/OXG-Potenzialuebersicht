@@ -130,6 +130,7 @@
 .city-potential-table th, .city-potential-table td { padding: 11px 12px; border-bottom: 1px solid #dfe9e5; text-align: right; }
 .city-potential-table th:first-child { text-align: left; min-width: 180px; }
 .city-potential-table thead th { color: #536d6b; font-size: 12px; }
+.city-potential-table thead th:not(:first-child) { text-align: center; }
 .city-potential-table td.city-potential-category { white-space: nowrap; }
 .city-potential-category strong { display: inline-block; min-width: 3ch; }
 .city-potential-category strong,
