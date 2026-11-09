@@ -153,6 +153,11 @@
 .city-potential-inprogress { background: #fff8dc; }
 .city-potential-street th { padding-left: 26px; font-weight: 500; }
 .city-potential-street { color: #536d6b; }
+.city-potential-table .city-potential-street > th,
+.city-potential-table .city-potential-street > td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
 .city-potential-street .city-potential-contract { background: #f2faf3; }
 .city-potential-street .city-potential-nonmarketable { background: #fcf3f4; }
 .city-potential-street .city-potential-interest { background: #fef7f7; }
