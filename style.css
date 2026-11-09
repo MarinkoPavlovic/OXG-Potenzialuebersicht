@@ -195,3 +195,22 @@
   background: rgba(18, 61, 62, .07);
   pointer-events: none;
 }
+
+.city-potential-table .city-potential-advisor > th,
+.city-potential-table .city-potential-advisor > td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.city-potential-advisor th {
+  padding-left: 44px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.city-potential-advisor { color: #637773; }
+.city-potential-advisor[hidden] { display: none; }
+.city-potential-advisor .city-potential-contract { background: #f8fcf8; }
+.city-potential-advisor .city-potential-nonmarketable { background: #fef9fa; }
+.city-potential-advisor .city-potential-interest { background: #fffafa; }
+.city-potential-advisor .city-potential-unworked { background: #fafbfa; }
+.city-potential-advisor .city-potential-inprogress { background: #fffef7; }
+.city-potential-street:has(.city-potential-toggle) { cursor: pointer; }

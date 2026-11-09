@@ -64,10 +64,23 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
 
   const selectedObjects = new Map();
   const objectUnits = new Map();
+  const objectAdvisors = new Map();
   selectedRecords.forEach((row, index) => {
     const key = keys.get(row) ?? uniquePotentialKey(row, allRecords.length + index);
     const previous = selectedObjects.get(key);
     if (!previous || preferPotentialAddress(row, previous)) selectedObjects.set(key, row);
+    const advisorName = String(row[2] ?? '').trim() || 'Nicht zugeordnet';
+    const advisorKey = normalizePotentialLocation(advisorName);
+    if (!objectAdvisors.has(key)) objectAdvisors.set(key, new Map());
+    const assignments = objectAdvisors.get(key);
+    const category = uniquePotentialCategory(row);
+    const assignment = assignments.get(advisorKey);
+    if (!assignment) {
+      assignments.set(advisorKey, {name: advisorName, category});
+    } else {
+      if (cityPotentialPriority.indexOf(category) < cityPotentialPriority.indexOf(assignment.category)) assignment.category = category;
+      if (advisorName < assignment.name) assignment.name = advisorName;
+    }
     const units = Number(row[3]);
     const period = String(row[0] ?? '');
     const previousUnits = objectUnits.get(key);
@@ -89,7 +102,7 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     const streetKey = normalizePotentialLocation(streetName);
     if (!cities.has(cityKey)) cities.set(cityKey, {name: cityName, ...emptyCityPotentialTotals(), streets: new Map()});
     const city = cities.get(cityKey);
-    if (!city.streets.has(streetKey)) city.streets.set(streetKey, {name: streetName, ...emptyCityPotentialTotals()});
+    if (!city.streets.has(streetKey)) city.streets.set(streetKey, {name: streetName, ...emptyCityPotentialTotals(), advisors: new Map()});
     const street = city.streets.get(streetKey);
     const category = bestCategories.get(key) ?? uniquePotentialCategory(row);
     const units = objectUnits.get(key)?.value ?? 0;
@@ -99,6 +112,15 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
       group[category] += 1;
       group.categoryUnits[category] += units;
     }
+    objectAdvisors.get(key).forEach((assignment, advisorKey) => {
+      if (!street.advisors.has(advisorKey)) street.advisors.set(advisorKey, {name: assignment.name, ...emptyCityPotentialTotals()});
+      const advisor = street.advisors.get(advisorKey);
+      advisor.total += 1;
+      advisor.units += units;
+      advisor[assignment.category] += 1;
+      advisor.categoryUnits[assignment.category] += units;
+      if (assignment.name < advisor.name) advisor.name = assignment.name;
+    });
     if (key.startsWith('address:')) addressIdentified += 1;
     if (key.startsWith('unidentified:')) unidentified += 1;
   });
@@ -106,6 +128,9 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
   const sortedCities = [...cities.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
   sortedCities.forEach(city => {
     city.streets = [...city.streets.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
+    city.streets.forEach(street => {
+      street.advisors = [...street.advisors.values()].sort((a, b) => cityPotentialCollator.compare(a.name, b.name));
+    });
   });
   return {cities: sortedCities, totals, addressIdentified, unidentified};
 }
@@ -115,7 +140,7 @@ function makeCityPotentialRow(name, totals, kind) {
   row.className = `city-potential-${kind}`;
   const label = document.createElement('th');
   label.scope = 'row';
-  label.textContent = kind === 'street' ? `└ ${name}` : name;
+  label.textContent = ['street', 'advisor'].includes(kind) ? `└ ${name}` : name;
   row.append(label);
   const count = document.createElement('td');
   count.textContent = number(totals.total);
@@ -157,10 +182,32 @@ function refreshCityPotential() {
 
   summary.cities.forEach(city => {
     const row = makeCityPotentialRow(city.name, city, 'city');
-    const streetRows = city.streets.map(street => {
+    const streetEntries = city.streets.map(street => {
       const child = makeCityPotentialRow(street.name, street, 'street');
       child.hidden = true;
-      return child;
+      const advisorRows = street.advisors.map(advisor => {
+        const advisorRow = makeCityPotentialRow(advisor.name, advisor, 'advisor');
+        advisorRow.hidden = true;
+        return advisorRow;
+      });
+      const streetButton = document.createElement('button');
+      streetButton.type = 'button';
+      streetButton.className = 'city-potential-toggle';
+      const setExpanded = expanded => {
+        streetButton.textContent = `└ ${street.name} ${expanded ? '▴' : '▾'}`;
+        streetButton.setAttribute('aria-expanded', String(expanded));
+        streetButton.setAttribute('aria-label', `Berater für ${street.name} in ${city.name} ${expanded ? 'ausblenden' : 'anzeigen'}`);
+        advisorRows.forEach(advisorRow => { advisorRow.hidden = !expanded; });
+      };
+      const toggleStreet = () => setExpanded(streetButton.getAttribute('aria-expanded') !== 'true');
+      setExpanded(false);
+      streetButton.addEventListener('click', event => {
+        event.stopPropagation();
+        toggleStreet();
+      });
+      child.addEventListener('click', toggleStreet);
+      child.firstChild.replaceChildren(streetButton);
+      return {row: child, advisorRows, close: () => setExpanded(false)};
     });
     const button = document.createElement('button');
     button.type = 'button';
@@ -173,10 +220,14 @@ function refreshCityPotential() {
       button.setAttribute('aria-expanded', String(expanded));
       button.setAttribute('aria-label', `Straßen für ${city.name} ${expanded ? 'ausblenden' : 'anzeigen'}`);
       button.textContent = `${city.name} ${expanded ? '▴' : '▾'}`;
-      streetRows.forEach(child => { child.hidden = !expanded; });
+      streetEntries.forEach(entry => {
+        entry.row.hidden = !expanded;
+        if (!expanded) entry.close();
+      });
     });
     row.firstChild.replaceChildren(button);
-    body.append(row, ...streetRows);
+    body.append(row);
+    streetEntries.forEach(entry => body.append(entry.row, ...entry.advisorRows));
   });
   document.querySelector('#cityPotentialTotals').replaceChildren(makeCityPotentialRow('Gesamt', summary.totals, 'total'));
   document.querySelector('#cityPotentialEmpty').hidden = summary.totals.total > 0;
