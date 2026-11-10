@@ -206,3 +206,15 @@
 
 .city-potential-advisor .city-potential-count,
 .city-potential-advisor .city-potential-rate { font-weight: 400; }
+
+/* Category dividers match the potential summary below. */
+.advisor-table thead th:nth-child(n + 4),
+.advisor-table .advisor-category { border-left: 2px solid #b6ccc6; }
+.advisor-table thead th:last-child,
+.advisor-table tr > .advisor-category:last-child { border-right: 2px solid #b6ccc6; }
+
+.city-potential-table tbody tr > :nth-child(2),
+.city-potential-table tbody tr > :nth-child(3),
+.city-potential-table tfoot tr > :nth-child(2),
+.city-potential-table tfoot tr > :nth-child(3),
+.city-potential-table thead th[rowspan]:not(:first-child) { padding-right: 12px; }
