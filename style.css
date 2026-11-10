@@ -123,6 +123,7 @@
   --city-potential-label-width: 182px;
   width: 100%;
   min-width: 1200px;
+  zoom: var(--summary-table-scale, 1);
   table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
@@ -133,7 +134,7 @@
 .city-potential-table col:nth-child(3) { width: var(--city-potential-units-col); }
 .city-potential-rate-col { width: var(--city-potential-rate-col); }
 .city-potential-table th, .city-potential-table td { padding: 8px 8px; border-bottom: 1px solid #dfe9e5; text-align: right; }
-.city-potential-table th[scope="row"], .city-potential-table th[rowspan]:first-child { text-align: left; overflow-wrap: anywhere; }
+.city-potential-table td:first-child, .city-potential-table th[scope="row"], .city-potential-table th[rowspan]:first-child { text-align: left; overflow-wrap: anywhere; }
 .city-potential-table thead th { color: #536d6b; font-size: 12px; }
 .city-potential-table thead th[scope="colgroup"] { text-align: center; }
 .city-potential-table .city-potential-subheaders th { padding: 3px 6px; text-align: right; font-size: 11px; }
