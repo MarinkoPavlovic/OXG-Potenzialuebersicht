@@ -175,17 +175,15 @@ function makeCityPotentialRow(name, totals, kind) {
 function refreshCityPotential() {
   const panel = document.querySelector('#cityPotentialPanel');
   panel.hidden = !liveRecords?.length;
-  const summary = buildUniquePotentialSummary(liveRecords ?? [], typeRecords());
+  const summary = buildUniquePotentialSummary(liveRecords ?? [], typeRecords({ignoreMonth: true, ignoreAdvisor: true}));
   const body = document.querySelector('#cityPotentialRows');
   body.replaceChildren();
   const selection = [];
   if (citySelect.value && citySelect.value !== 'all') selection.push(citySelect.value);
-  if (monthSelect.value && monthSelect.value !== 'all') selection.push(monthLabel(monthSelect.value));
-  else if (yearSelect.value && yearSelect.value !== 'all') selection.push(yearSelect.value);
-  if (selectedAdvisors.size) selection.push([...selectedAdvisors].sort(cityPotentialCollator.compare).join(', '));
+  if (yearSelect.value && yearSelect.value !== 'all') selection.push(yearSelect.value);
   if (leadTypeSelect.value === 'new') selection.push('Neue Leads');
   if (leadTypeSelect.value === 'old') selection.push('Alte Leads');
-  document.querySelector('#cityPotentialSelection').textContent = selection.join(' · ') || 'Alle geladenen Potenziale';
+  document.querySelector('#cityPotentialSelection').textContent = `${selection.join(' · ') || 'Alle geladenen Potenziale'} · Alle Monate · Alle Berater`;
 
   summary.cities.forEach(city => {
     const row = makeCityPotentialRow(city.name, city, 'city');
