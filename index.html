@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="dashboard-app-icon.svg">
     <link rel="apple-touch-icon" href="header-deutschland-tuerkis.png?v=icon">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=20261110-aligned-summaries">
+    <link rel="stylesheet" href="style.css?v=20261110-unified-tables">
   </head>
   <body>
     <main class="shell">
@@ -122,8 +122,10 @@
           </div>
           <p id="potentialExportStatus" class="potential-export-status" role="status" aria-live="polite"></p>
           <div class="advisor-table-wrap">
-          <table class="advisor-table">
-            <thead><tr><th scope="col">Berater</th><th scope="col">Leads</th><th scope="col">WE</th><th scope="col" class="advisor-contract">Gestattungen</th><th scope="col" class="advisor-unworked">Nicht ermittelt</th><th scope="col" class="advisor-todo">To-dos</th><th scope="col" class="advisor-interest">Kein Interesse</th><th scope="col" class="advisor-blocked">Nicht vermarktbar</th></tr></thead>
+          <table class="advisor-table city-potential-table" aria-label="Leads und Wohneinheiten je Berater">
+            <colgroup><col class="city-potential-label-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"></colgroup>
+              <thead><tr><th scope="col" rowspan="2">Berater</th><th scope="col" rowspan="2">Leads</th><th scope="col" rowspan="2">WE</th><th scope="colgroup" colspan="3">Gestattungen</th><th scope="colgroup" colspan="3">Nicht ermittelt</th><th scope="colgroup" colspan="3">To-dos</th><th scope="colgroup" colspan="3">Kein Interesse</th><th scope="colgroup" colspan="3">Nicht vermarktbar</th></tr>
+                <tr class="city-potential-subheaders"><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th></tr></thead>
             <tbody id="advisorRows"></tbody>
             <tfoot id="advisorTotals"></tfoot>
           </table>
@@ -170,10 +172,10 @@
     <script src="nonmarketable-details.js"></script>
     <script src="todo-data.js"></script>
     <script src="lead-types-data.js"></script>
-    <script src="app.js?v=20261109-unique-objects"></script>
+    <script src="app.js?v=20261110-unified-tables"></script>
     <script src="lead-details.js?v=20261104-filter-title"></script>
     <script src="city-potential.js?v=20261110-category-columns"></script>
-    <script src="table-alignment.js?v=20261110-aligned-summaries"></script>
+    <script src="table-alignment.js?v=20261110-unified-tables"></script>
     <script src="object-search.js?v=20261109-street-filter"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>

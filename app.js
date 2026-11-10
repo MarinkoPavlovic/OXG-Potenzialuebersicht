@@ -257,7 +257,7 @@ function render() {
   advisorRows.replaceChildren();
   const makeAdvisorRow=(row,isCity,alternate,isTotal=false) => {
     const tr = document.createElement('tr');
-    tr.className=`${isCity?'advisor-city-row':'advisor-main-row'}${alternate?' advisor-alternate':''}${isTotal?' advisor-total-row':''}`;
+    tr.className=`${isCity?'advisor-city-row city-potential-street':'advisor-main-row city-potential-city'}${alternate?' advisor-alternate':''}${isTotal?' advisor-total-row city-potential-total':''}`;
     const rate=(value,base)=>base?pct(value,base):'–';
     const nameCell=document.createElement(isTotal?'th':'td');
     if(isTotal)nameCell.setAttribute('scope','row');
@@ -267,9 +267,13 @@ function render() {
     tr.append(nameCell);
     [number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
     [['contract',row.contracts,row.contractUnits,rate(row.contracts,row.denominator)],['unworked',row.unworked,row.unworkedUnits,rate(row.unworked,row.leads)],['todo',row.todos,row.todoUnits,rate(row.todos,row.marketable)],['interest',row.interest,row.interestUnits,rate(row.interest,row.denominator)],['blocked',row.nonmarketable,row.nonmarketableUnits,rate(row.nonmarketable,row.leads)]].forEach(([kind,count,units,percentage])=>{
-      const cell=document.createElement('td'), layout=document.createElement('div'), countEl=document.createElement('span'), unitsEl=document.createElement('span'), dotEl=document.createElement('span'), rateEl=document.createElement('span');
-      cell.className=`advisor-category advisor-${kind}`;layout.className='advisor-result';countEl.className='advisor-result-count';unitsEl.className='advisor-result-units';dotEl.className='advisor-result-dot';rateEl.className='advisor-result-rate';
-      countEl.textContent=number(count);unitsEl.textContent=`(${number(units)} WE)`;dotEl.textContent='·';rateEl.textContent=percentage;layout.append(countEl,unitsEl,dotEl,rateEl);cell.append(layout);tr.append(cell);
+      const category = {contract: 'contract', unworked: 'unworked', todo: 'inprogress', interest: 'interest', blocked: 'nonmarketable'}[kind];
+      [['count', number(count)], ['units', number(units)], ['rate', percentage]].forEach(([metric, value]) => {
+        const cell = document.createElement('td');
+        cell.className = `advisor-category advisor-${kind} city-potential-category city-potential-${category} city-potential-${metric}`;
+        cell.textContent = value;
+        tr.append(cell);
+      });
     });
     return tr;
   };
