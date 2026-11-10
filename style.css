@@ -152,8 +152,12 @@
 .city-potential-table .city-potential-subheaders th:nth-child(3n + 2) { padding-right: 16px; }
 .city-potential-table .city-potential-subheaders th:nth-child(3n) { padding-left: 2px; padding-right: 2px; text-align: center; }
 .city-potential-table .city-potential-rate { padding-left: 2px; padding-right: 2px; color: #536d6b; font-weight: 700; }
-.city-potential-table .city-potential-subheaders th:nth-child(3n),
-.city-potential-table .city-potential-rate { border-right: 1px solid #dfe9e5; }
+.city-potential-table thead th[scope="colgroup"],
+.city-potential-table .city-potential-subheaders th:nth-child(3n + 1),
+.city-potential-table .city-potential-count { border-left: 2px solid #b6ccc6; }
+.city-potential-table thead th[scope="colgroup"]:last-child,
+.city-potential-table .city-potential-subheaders th:last-child,
+.city-potential-table tr > .city-potential-rate:last-child { border-right: 2px solid #b6ccc6; }
 .city-potential-contract { background: #e5f4e8; }
 .city-potential-nonmarketable { background: #f8e6e8; }
 .city-potential-interest { background: #fceeee; }
