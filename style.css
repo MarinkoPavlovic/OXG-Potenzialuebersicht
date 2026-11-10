@@ -204,3 +204,11 @@
 .city-potential-table tfoot tr > :nth-child(2),
 .city-potential-table tfoot tr > :nth-child(3),
 .city-potential-table thead th[rowspan]:not(:first-child) { padding-right: 12px; }
+
+/* Alternate physical columns while preserving each category's background color. */
+.city-potential-table tbody tr > :nth-child(even),
+.city-potential-table tfoot tr > :nth-child(even),
+.city-potential-table thead th[rowspan]:nth-child(even),
+.city-potential-table .city-potential-subheaders > :nth-child(odd) {
+  background-image: linear-gradient(rgba(18, 61, 62, .045), rgba(18, 61, 62, .045));
+}
