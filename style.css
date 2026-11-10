@@ -126,27 +126,32 @@
 .city-potential-help { color: #536d6b; font-size: 13px; line-height: 1.5; margin: 12px 0; }
 .city-potential-help:empty { display: none; }
 .city-potential-table-wrap { overflow-x: auto; margin-top: 18px; }
-.city-potential-table { width: 100%; min-width: 1100px; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-.city-potential-table th, .city-potential-table td { padding: 11px 12px; border-bottom: 1px solid #dfe9e5; text-align: right; }
-.city-potential-table th:first-child { text-align: left; min-width: 180px; }
-.city-potential-table thead th { color: #536d6b; font-size: 12px; }
-.city-potential-table thead th:not(:first-child) { text-align: center; }
-.city-potential-table td.city-potential-category { white-space: nowrap; }
-.city-potential-category strong { display: inline-block; min-width: 3ch; }
-.city-potential-category strong,
-.city-potential-category .city-potential-rate {
+.city-potential-table {
+  --city-potential-count-col: calc(var(--city-potential-count-width, 3ch) + 24px);
+  --city-potential-units-col: calc(var(--city-potential-units-width, 3ch) + 16px);
+  --city-potential-rate-col: calc(5ch + 4px);
+  width: 100%;
+  min-width: calc(240px + 6 * var(--city-potential-count-col) + 6 * var(--city-potential-units-col) + 5 * var(--city-potential-rate-col));
+  table-layout: fixed;
+  border-collapse: collapse;
   font-size: 13px;
-  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.city-potential-category .city-potential-rate {
-  display: inline-block;
-  box-sizing: border-box;
-  width: 6ch;
-  min-width: 6ch;
-  margin-left: 10px;
-  color: #536d6b;
-  text-align: right;
-}
+.city-potential-count-col { width: var(--city-potential-count-col); }
+.city-potential-units-col { width: var(--city-potential-units-col); }
+.city-potential-rate-col { width: var(--city-potential-rate-col); }
+.city-potential-table th, .city-potential-table td { padding: 11px 8px; border-bottom: 1px solid #dfe9e5; text-align: right; }
+.city-potential-table th[scope="row"], .city-potential-table th[rowspan]:first-child { text-align: left; overflow-wrap: anywhere; }
+.city-potential-table thead th { color: #536d6b; font-size: 12px; }
+.city-potential-table thead th[scope="colgroup"] { text-align: center; }
+.city-potential-table .city-potential-subheaders th { padding: 4px 6px; text-align: right; font-size: 11px; }
+.city-potential-table td.city-potential-category { white-space: nowrap; }
+.city-potential-table .city-potential-count { padding-right: 16px; font-weight: 700; }
+.city-potential-table .city-potential-subheaders th:nth-child(3n + 1) { padding-right: 16px; }
+.city-potential-table .city-potential-subheaders th:nth-child(3n) { padding-left: 2px; padding-right: 2px; }
+.city-potential-table .city-potential-rate { padding-left: 2px; padding-right: 2px; color: #536d6b; font-weight: 700; }
+.city-potential-table .city-potential-subheaders th:nth-child(3n),
+.city-potential-table .city-potential-rate { border-right: 1px solid #dfe9e5; }
 .city-potential-contract { background: #e5f4e8; }
 .city-potential-nonmarketable { background: #f8e6e8; }
 .city-potential-interest { background: #fceeee; }
@@ -169,32 +174,9 @@
 .city-potential-toggle:focus-visible { outline: 2px solid #32727c; outline-offset: 3px; }
 .city-potential-table .city-potential-total > * { background: #f1f2f3; border-top: 2px solid #32727c; font-weight: 800; }
 
-.city-potential-units {
-  margin-left: 6px;
-  color: #536d6b;
-  font-size: 11px;
-  font-weight: 500;
-}
-.city-potential-category {
-  position: relative;
-  overflow: hidden;
-}
-.city-potential-rate {
-  position: relative;
-  isolation: isolate;
-}
-.city-potential-city .city-potential-rate::before,
-.city-potential-total .city-potential-rate::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: -100%;
-  bottom: -100%;
-  left: -6px;
-  right: -100vw;
-  background: rgba(18, 61, 62, .07);
-  pointer-events: none;
-}
+.city-potential-units { color: #536d6b; font-size: 13px; font-weight: 500; }
+.city-potential-city .city-potential-rate,
+.city-potential-total .city-potential-rate { box-shadow: inset 0 0 0 100px rgba(18, 61, 62, .07); }
 
 .city-potential-table .city-potential-advisor > th,
 .city-potential-table .city-potential-advisor > td {
@@ -215,29 +197,5 @@
 .city-potential-advisor .city-potential-inprogress { background: #fffef7; }
 .city-potential-street:has(.city-potential-toggle) { cursor: pointer; }
 
-.city-potential-advisor .city-potential-category strong,
-.city-potential-advisor .city-potential-rate {
-  font-weight: 400;
-}
-
-.city-potential-value-layout {
-  display: inline-grid;
-  grid-template-columns: minmax(3ch, max-content) var(--city-potential-units-width, 9ch) 6ch;
-  column-gap: 4px;
-  align-items: baseline;
-  vertical-align: baseline;
-  font-size: 13px;
-  font-weight: 400;
-}
-.city-potential-value-layout > * {
-  text-align: right;
-}
-.city-potential-value-layout .city-potential-units {
-  margin-left: 0;
-  text-align: left;
-}
-.city-potential-value-layout .city-potential-rate {
-  width: auto;
-  min-width: 0;
-  margin-left: 0;
-}
+.city-potential-advisor .city-potential-count,
+.city-potential-advisor .city-potential-rate { font-weight: 400; }

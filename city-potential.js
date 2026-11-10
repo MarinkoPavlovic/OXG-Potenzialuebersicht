@@ -157,21 +157,17 @@ function makeCityPotentialRow(name, totals, kind) {
   unitTotal.textContent = number(totals.units);
   row.append(unitTotal);
   cityPotentialCategories.forEach(category => {
-    const cell = document.createElement('td');
-    cell.className = `city-potential-category city-potential-${category}`;
-    const value = document.createElement('strong');
-    const units = document.createElement('small');
-    units.className = 'city-potential-units';
-    units.textContent = `(${number(totals.categoryUnits[category])} WE)`;
-    const rate = document.createElement('span');
-    rate.className = 'city-potential-rate';
-    value.textContent = number(totals[category]);
+    const count = document.createElement('td');
+    const units = document.createElement('td');
+    const rate = document.createElement('td');
+    const categoryClass = `city-potential-category city-potential-${category}`;
+    count.className = `${categoryClass} city-potential-count`;
+    units.className = `${categoryClass} city-potential-units`;
+    rate.className = `${categoryClass} city-potential-rate`;
+    count.textContent = number(totals[category]);
+    units.textContent = number(totals.categoryUnits[category]);
     rate.textContent = totals.total ? pct(totals[category], totals.total) : '–';
-    const layout = document.createElement('span');
-    layout.className = 'city-potential-value-layout';
-    layout.append(value, units, rate);
-    cell.append(layout);
-    row.append(cell);
+    row.append(count, units, rate);
   });
   return row;
 }
@@ -180,7 +176,9 @@ function refreshCityPotential() {
   const panel = document.querySelector('#cityPotentialPanel');
   panel.hidden = !liveRecords?.length;
   const summary = buildUniquePotentialSummary(liveRecords ?? [], typeRecords());
-  const unitsWidth = Math.max(9, number(summary.totals.units).length + 5);
+  const unitsWidth = Math.max(3, number(summary.totals.units).length);
+  const countWidth = Math.max(3, number(summary.totals.total).length);
+  panel.style.setProperty('--city-potential-count-width', `${countWidth}ch`);
   panel.style.setProperty('--city-potential-units-width', `${unitsWidth}ch`);
   const body = document.querySelector('#cityPotentialRows');
   body.replaceChildren();

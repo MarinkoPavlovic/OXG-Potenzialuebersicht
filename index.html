@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="dashboard-app-icon.svg">
     <link rel="apple-touch-icon" href="header-deutschland-tuerkis.png?v=icon">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=20261110-compact-value-gap">
+    <link rel="stylesheet" href="style.css?v=20261110-category-spacing">
   </head>
   <body>
     <main class="shell">
@@ -144,7 +144,9 @@
           <div class="panel-head"><div><h2>Potenzialausschöpfung</h2><p id="cityPotentialSelection"></p></div></div>
           <div class="city-potential-table-wrap">
             <table class="city-potential-table" aria-label="Eindeutige Leads und Wohneinheiten je Ort und Straße">
-              <thead><tr><th scope="col">Ort / Straße / Berater</th><th scope="col">Leads</th><th scope="col">WE</th><th scope="col">Gestattungen</th><th scope="col">Nicht ermittelt</th><th scope="col">In Bearbeitung</th><th scope="col">Kein Interesse</th><th scope="col">Nicht vermarktbar</th></tr></thead>
+              <colgroup><col class="city-potential-label-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"></colgroup>
+              <thead><tr><th scope="col" rowspan="2">Ort / Straße / Berater</th><th scope="col" rowspan="2">Leads</th><th scope="col" rowspan="2">WE</th><th scope="colgroup" colspan="3">Gestattungen</th><th scope="colgroup" colspan="3">Nicht ermittelt</th><th scope="colgroup" colspan="3">In Bearbeitung</th><th scope="colgroup" colspan="3">Kein Interesse</th><th scope="colgroup" colspan="3">Nicht vermarktbar</th></tr>
+                <tr class="city-potential-subheaders"><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th><th scope="col">Anzahl</th><th scope="col">WE</th><th scope="col">%</th></tr></thead>
               <tbody id="cityPotentialRows"></tbody>
               <tfoot id="cityPotentialTotals"></tfoot>
             </table>
@@ -170,7 +172,7 @@
     <script src="lead-types-data.js"></script>
     <script src="app.js?v=20261109-unique-objects"></script>
     <script src="lead-details.js?v=20261104-filter-title"></script>
-    <script src="city-potential.js?v=20261110-aligned-values"></script>
+    <script src="city-potential.js?v=20261110-category-columns"></script>
     <script src="object-search.js?v=20261109-street-filter"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>
