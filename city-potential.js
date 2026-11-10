@@ -167,7 +167,10 @@ function makeCityPotentialRow(name, totals, kind) {
     rate.className = 'city-potential-rate';
     value.textContent = number(totals[category]);
     rate.textContent = totals.total ? pct(totals[category], totals.total) : '–';
-    cell.append(value, units, rate);
+    const layout = document.createElement('span');
+    layout.className = 'city-potential-value-layout';
+    layout.append(value, units, rate);
+    cell.append(layout);
     row.append(cell);
   });
   return row;
@@ -177,6 +180,8 @@ function refreshCityPotential() {
   const panel = document.querySelector('#cityPotentialPanel');
   panel.hidden = !liveRecords?.length;
   const summary = buildUniquePotentialSummary(liveRecords ?? [], typeRecords());
+  const unitsWidth = Math.max(9, number(summary.totals.units).length + 5);
+  panel.style.setProperty('--city-potential-units-width', `${unitsWidth}ch`);
   const body = document.querySelector('#cityPotentialRows');
   body.replaceChildren();
   const selection = [];
