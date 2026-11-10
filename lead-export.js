@@ -149,3 +149,35 @@ exportPotentialButton.addEventListener('click',async()=>{
   } catch(error) { status.textContent=error.name==='AbortError'?'':`Excel-Export fehlgeschlagen: ${error.message}`; }
   finally {exportPotentialButton.disabled=liveRecords===null || !advisorRecords().length;}
 });
+
+function cityPotentialExportRecords() {
+  return cityPotentialRecords().slice().sort(compareGestattungLeads);
+}
+function cityPotentialExportFilename() {
+  const scope = ['Potenzialausschöpfung'];
+  if (citySelect.value && citySelect.value !== 'all') scope.push(citySelect.value);
+  if (yearSelect.value && yearSelect.value !== 'all') scope.push(yearSelect.value);
+  if (leadTypeSelect.value === 'new') scope.push('Neue Leads');
+  if (leadTypeSelect.value === 'old') scope.push('Alte Leads');
+  return leadExportFilename('potential', scope.join(' – '));
+}
+const exportCityPotentialButton = document.querySelector('#exportCityPotentialList');
+exportCityPotentialButton.addEventListener('click', async () => {
+  if (liveRecords === null || exportCityPotentialButton.disabled) return;
+  const records = cityPotentialExportRecords();
+  if (!records.length) return;
+  const status = document.querySelector('#cityPotentialExportStatus');
+  const filename = cityPotentialExportFilename();
+  exportCityPotentialButton.disabled = true;
+  exportCityPotentialButton.setAttribute('aria-busy', 'true');
+  status.textContent = 'Excel-Datei wird erstellt …';
+  try {
+    await saveLeadWorkbook(filename, records, 'potential');
+    status.textContent = number(records.length) + ' Potenziale exportiert.';
+  } catch (error) {
+    status.textContent = error.name === 'AbortError' ? '' : 'Excel-Export fehlgeschlagen: ' + error.message;
+  } finally {
+    exportCityPotentialButton.setAttribute('aria-busy', 'false');
+    exportCityPotentialButton.disabled = liveRecords === null || !cityPotentialRecords().length;
+  }
+});

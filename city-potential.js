@@ -172,10 +172,18 @@ function makeCityPotentialRow(name, totals, kind) {
   return row;
 }
 
+function cityPotentialRecords() {
+  return typeRecords({ignoreMonth: true, ignoreAdvisor: true});
+}
+
 function refreshCityPotential() {
   const panel = document.querySelector('#cityPotentialPanel');
   panel.hidden = !liveRecords?.length;
-  const summary = buildUniquePotentialSummary(liveRecords ?? [], typeRecords({ignoreMonth: true, ignoreAdvisor: true}));
+  const selectedRecords = cityPotentialRecords();
+  const summary = buildUniquePotentialSummary(liveRecords ?? [], selectedRecords);
+  const exportButton = document.querySelector('#exportCityPotentialList');
+  exportButton.disabled = !selectedRecords.length || exportButton.getAttribute('aria-busy') === 'true';
+  document.querySelector('#cityPotentialExportStatus').textContent = '';
   const body = document.querySelector('#cityPotentialRows');
   body.replaceChildren();
   const selection = [];

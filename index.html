@@ -143,7 +143,8 @@
           </section>
         </article>
         <article class="panel city-potential-panel" id="cityPotentialPanel" hidden>
-          <div class="panel-head"><div><h2>Potenzialausschöpfung</h2><p id="cityPotentialSelection"></p></div></div>
+          <div class="panel-head advisor-panel-head"><div><h2>Potenzialausschöpfung</h2><p id="cityPotentialSelection"></p></div><button type="button" id="exportCityPotentialList" class="potential-export-button" disabled>Potenzialliste exportieren</button></div>
+          <p id="cityPotentialExportStatus" class="potential-export-status" role="status" aria-live="polite"></p>
           <div class="city-potential-table-wrap">
             <table class="city-potential-table" aria-label="Eindeutige Leads und Wohneinheiten je Ort und Straße">
               <colgroup><col class="city-potential-label-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"><col class="city-potential-count-col"><col class="city-potential-units-col"><col class="city-potential-rate-col"></colgroup>
@@ -174,12 +175,12 @@
     <script src="lead-types-data.js"></script>
     <script src="app.js?v=20261110-unified-tables"></script>
     <script src="lead-details.js?v=20261104-filter-title"></script>
-    <script src="city-potential.js?v=20261110-independent-month-advisor"></script>
+    <script src="city-potential.js?v=20261110-potential-export"></script>
     <script src="table-fit.js?v=20261110-fit-available-space"></script>
     <script src="object-search.js?v=20261109-street-filter"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>
-    <script src="lead-export.js?v=20261109-street-filter"></script>
+    <script src="lead-export.js?v=20261110-potential-export"></script>
     <script type="module" src="cloud-app.js?v=20261109-street-filter"></script>
   </body>
 </html>
