@@ -159,10 +159,6 @@ function makeCityPotentialRow(name, totals, kind) {
   cityPotentialCategories.forEach(category => {
     const cell = document.createElement('td');
     cell.className = `city-potential-category city-potential-${category}`;
-    if (kind === 'advisor' && category !== 'contract') {
-      row.append(cell);
-      return;
-    }
     const value = document.createElement('strong');
     const units = document.createElement('small');
     units.className = 'city-potential-units';
