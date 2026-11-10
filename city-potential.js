@@ -176,10 +176,6 @@ function refreshCityPotential() {
   const panel = document.querySelector('#cityPotentialPanel');
   panel.hidden = !liveRecords?.length;
   const summary = buildUniquePotentialSummary(liveRecords ?? [], typeRecords());
-  const unitsWidth = Math.max(3, number(summary.totals.units).length);
-  const countWidth = Math.max(3, number(summary.totals.total).length);
-  panel.style.setProperty('--city-potential-count-width', `${countWidth}ch`);
-  panel.style.setProperty('--city-potential-units-width', `${unitsWidth}ch`);
   const body = document.querySelector('#cityPotentialRows');
   body.replaceChildren();
   const selection = [];
