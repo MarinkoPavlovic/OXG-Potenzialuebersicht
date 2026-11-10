@@ -223,7 +223,7 @@
 .city-potential-value-layout {
   display: inline-grid;
   grid-template-columns: minmax(3ch, max-content) var(--city-potential-units-width, 9ch) 6ch;
-  column-gap: 8px;
+  column-gap: 4px;
   align-items: baseline;
   vertical-align: baseline;
   font-size: 13px;
@@ -234,6 +234,7 @@
 }
 .city-potential-value-layout .city-potential-units {
   margin-left: 0;
+  text-align: left;
 }
 .city-potential-value-layout .city-potential-rate {
   width: auto;
