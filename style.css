@@ -130,7 +130,7 @@
   --city-potential-count-col: calc(var(--city-potential-count-width, 3ch) + 24px);
   --city-potential-units-col: calc(var(--city-potential-units-width, 3ch) + 18px);
   --city-potential-rate-col: calc(5ch + 4px);
-  --city-potential-label-width: 220px;
+  --city-potential-label-width: 182px;
   width: calc(var(--city-potential-label-width) + 6 * var(--city-potential-count-col) + 6 * var(--city-potential-units-col) + 5 * var(--city-potential-rate-col));
   table-layout: fixed;
   border-collapse: collapse;
