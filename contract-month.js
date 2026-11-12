@@ -56,8 +56,9 @@
     if (!monthRows.length) { detail.append(text('p','Für diese Auswahl liegen keine Gestattungen mit gültigem Datum vor.')); return; }
     const advisors=group(monthRows,2);
     const advisorMax=Math.max(1,...advisors.flatMap(g=>[g.count,g.units]));
-    for(const g of advisors) {
+    for(const [index,g] of advisors.entries()) {
       const button=horizontalRow(g,advisorMax,true);
+      if(index % 2 === 1) button.classList.add('contract-advisor-alternate');
       button.addEventListener('click',()=>{selectedAdvisor=selectedAdvisor===g.name?'':g.name; showDetails(rows);}); detail.append(button);
       if(selectedAdvisor===g.name) {
         const cities=group(g.rows,1), cityMax=Math.max(1,...cities.flatMap(city=>[city.count,city.units]));
