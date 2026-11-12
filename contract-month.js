@@ -71,10 +71,11 @@
   window.refreshContractMonth = () => {
     const year=yearSelect.value, month=monthSelect.value;
     const asDatedContracts = records => records.filter(r=>r[4]==='Vertrag abgeschlossen').map(row=>({row,date:latestDate(row[17])})).filter(x=>x.date);
-    const allRows=asDatedContracts(liveRecords ?? leadTypeRecords);
+    const loadedRecords=liveRecords ?? leadTypeRecords;
+    const allRows=asDatedContracts(loadedRecords);
     const rows=asDatedContracts(typeRecords({ignoreYear:true,ignoreMonth:true})).filter(x=>(!year || year==='all' || x.date.startsWith(year+'-')) && (!month || month==='all' || x.date.slice(0,7)===month));
-    const groups=new Map();
-    for(const x of allRows) {const key=x.date.slice(0,7), g=groups.get(key)||{count:0,units:0};g.count++;g.units+=Number(x.row[3])||0;groups.set(key,g);}
+    const groups=new Map([...new Set(loadedRecords.map(r=>r[0]).filter(value=>/^\d{4}-(0[1-9]|1[0-2])$/.test(value)))].map(key=>[key,{count:0,units:0}]));
+    for(const x of allRows) {const key=x.date.slice(0,7), g=groups.get(key);if(g){g.count++;g.units+=Number(x.row[3])||0;}}
     const entries=[...groups].sort((a,b)=>a[0].localeCompare(b[0]));
     const maximum=Math.max(1,...entries.flatMap(([,g])=>[g.count,g.units]));
     const step=Math.max(1,Math.pow(10,Math.floor(Math.log10(maximum/4)))); const axisMax=Math.ceil(maximum/step/4)*4*step;
