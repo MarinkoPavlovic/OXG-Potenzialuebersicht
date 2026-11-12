@@ -58,6 +58,7 @@
     const advisorMax=Math.max(1,...advisors.flatMap(g=>[g.count,g.units]));
     for(const [index,g] of advisors.entries()) {
       const button=horizontalRow(g,advisorMax,true);
+      button.querySelector('.contract-horizontal-name').textContent = `${index + 1}. ${g.name} ▾`;
       if(index % 2 === 1) button.classList.add('contract-advisor-alternate');
       button.addEventListener('click',()=>{selectedAdvisor=selectedAdvisor===g.name?'':g.name; showDetails(rows);}); detail.append(button);
       if(selectedAdvisor===g.name) {
