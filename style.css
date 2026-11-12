@@ -272,3 +272,8 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-month-column { width: min(18px, 42%); min-width: 0; }
 .contract-month-label { font-size: clamp(.55rem, 1.1vw, .78rem); }
 .contract-month-value { font-size: clamp(.55rem, 1.1vw, .72rem); }
+.contract-horizontal-row { grid-template-columns: minmax(65px, 105px) minmax(55px, 1fr); }
+.contract-horizontal-tracks { padding-right: 3em; }
+.contract-horizontal-line { position: relative; background: transparent; overflow: visible; }
+.contract-horizontal-number { position: absolute; top: 50%; transform: translateY(-50%); margin-left: .35em; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+@media(max-width: 600px) { .contract-horizontal-row { grid-template-columns: minmax(65px, 100px) minmax(40px, 1fr); } }

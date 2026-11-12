@@ -40,18 +40,21 @@
     for(const [value,kind] of [[g.count,'objects'],[g.units,'units']]) {
       const line=document.createElement('span'); line.className='contract-horizontal-line';
       const fill=document.createElement('span'); fill.className=`contract-horizontal-fill ${kind}`; fill.style.width=`${value/max*100}%`;
-      line.append(fill); tracks.append(line);
+      const valueLabel=text('span',fmt.format(value),'contract-horizontal-number');
+      valueLabel.style.left=`${value/max*100}%`;
+      line.append(fill,valueLabel); tracks.append(line);
     }
-    row.append(tracks,text('span',`${fmt.format(g.count)} Objekte · ${fmt.format(g.units)} WE`,'contract-horizontal-values'));
+    row.append(tracks);
     return row;
   }
   function showDetails(rows) {
     detail.replaceChildren();
-    detailPanel.hidden = !selectedMonth;
-    if (!selectedMonth) return;
-    const monthRows=rows.filter(x=>x.date.slice(0,7)===selectedMonth).map(x=>x.row);
-    if (!monthRows.length) { selectedMonth=''; selectedAdvisor=''; detailPanel.hidden=true; return; }
-    detail.append(text('h3', `Berater · ${label(selectedMonth)}`));
+    detailPanel.hidden = false;
+    let monthRows=rows.filter(x=>!selectedMonth || x.date.slice(0,7)===selectedMonth).map(x=>x.row);
+    if (selectedMonth && !monthRows.length) { selectedMonth=''; selectedAdvisor=''; monthRows=rows.map(x=>x.row); }
+    detail.append(text('h3', selectedMonth ? `Berater · ${label(selectedMonth)}` : 'Gestattungen nach Berater'));
+    detail.append(legend());
+    if (!monthRows.length) { detail.append(text('p','Für diese Auswahl liegen keine Gestattungen mit gültigem Datum vor.')); return; }
     const advisors=group(monthRows,2);
     const advisorMax=Math.max(1,...advisors.flatMap(g=>[g.count,g.units]));
     for(const g of advisors) {
