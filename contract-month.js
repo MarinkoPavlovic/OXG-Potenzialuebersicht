@@ -51,7 +51,14 @@
     detail.replaceChildren();
     detailPanel.hidden = false;
     const monthRows=rows.map(x=>x.row);
-    detail.append(text('h3', 'Gestattungen nach Berater'));
+    const selection=[];
+    if(monthSelect.value && monthSelect.value!=='all') selection.push(label(monthSelect.value));
+    else if(yearSelect.value && yearSelect.value!=='all') selection.push(yearSelect.value);
+    if(citySelect.value && citySelect.value!=='all') selection.push(citySelect.value);
+    if(selectedAdvisors.size) selection.push([...selectedAdvisors].sort((a,b)=>a.localeCompare(b,'de')).join(', '));
+    if(leadTypeSelect.value==='new') selection.push('Neue Leads');
+    else if(leadTypeSelect.value==='old') selection.push('Alte Leads');
+    detail.append(text('h3', ['Gestattungen nach Berater',...selection].join(' · ')));
     detail.append(legend());
     if (!monthRows.length) { detail.append(text('p','Für diese Auswahl liegen keine Gestattungen mit gültigem Datum vor.')); return; }
     const advisors=group(monthRows,2);
