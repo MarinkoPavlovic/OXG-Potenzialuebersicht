@@ -93,7 +93,7 @@
       button.setAttribute('aria-label',`${label(key)}: ${fmt.format(g.count)} Objekte, ${fmt.format(g.units)} Wohneinheiten`);
       const area=document.createElement('span');area.className='contract-month-bar-area';
       for(const [value,kind] of [[g.count,'objects'],[g.units,'units']]) {
-        const column=document.createElement('span');column.className='contract-month-column';column.style.height=`${value/axisMax*100}%`;
+        const column=document.createElement('span');column.className=`contract-month-column${value>0?' has-value':''}`;column.style.height=`${value/axisMax*100}%`;
         column.append(text('span',fmt.format(value),'contract-month-value'));
         const fill=document.createElement('span');fill.className=`contract-month-bar-fill ${kind}`;column.append(fill);area.append(column);
       }

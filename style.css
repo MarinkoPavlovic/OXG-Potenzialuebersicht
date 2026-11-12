@@ -272,6 +272,12 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-month-column { width: min(18px, 42%); min-width: 0; }
 .contract-month-label { font-size: clamp(.55rem, 1.1vw, .78rem); }
 .contract-month-value { font-size: clamp(.55rem, 1.1vw, .72rem); }
+.contract-month-column { --depth: 3px; }
+.contract-month-bar-area { gap: 5px; }
+.contract-month-bar-fill { position: relative; border-radius: 0; }
+.contract-month-column.has-value .contract-month-bar-fill::before { content: ''; position: absolute; left: 0; bottom: 100%; width: calc(100% + var(--depth)); height: var(--depth); background: inherit; filter: brightness(1.22); clip-path: polygon(0 100%, var(--depth) 0, 100% 0, calc(100% - var(--depth)) 100%); }
+.contract-month-column.has-value .contract-month-bar-fill::after { content: ''; position: absolute; left: 100%; top: calc(-1 * var(--depth)); width: var(--depth); height: calc(100% + var(--depth)); background: inherit; filter: brightness(.72); clip-path: polygon(0 var(--depth), 100% 0, 100% calc(100% - var(--depth)), 0 100%); }
+.contract-month-value { z-index: 1; margin-bottom: 5px; }
 .contract-month-bar { cursor: default; }
 .contract-horizontal-row { grid-template-columns: minmax(65px, 105px) minmax(55px, 1fr); }
 .contract-horizontal-tracks { padding-right: 3em; }
