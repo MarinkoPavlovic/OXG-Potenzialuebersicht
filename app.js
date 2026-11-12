@@ -233,7 +233,6 @@ function todoTotals() {
 }
 function render() {
   updateAdvisorStreetFilter();
-  if (window.refreshContractMonth) window.refreshContractMonth();
   document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   if (window.refreshObjectSearch) window.refreshObjectSearch();
