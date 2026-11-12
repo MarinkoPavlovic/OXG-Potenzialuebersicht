@@ -303,5 +303,6 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-detail-cities .contract-horizontal-fill.units { background: #f3d795; }
 .contract-detail-cities .contract-horizontal-name { padding-left: .8rem; }
 button.contract-horizontal-row.contract-advisor-alternate { background: #f2f8f7; }
+.contract-horizontal-row.contract-advisor-alternate { background: #f2f8f7; }
 button.contract-horizontal-row.contract-advisor-alternate:hover, button.contract-horizontal-row.contract-advisor-alternate[aria-expanded="true"] { background: #e3f1ee; }
 @media(max-width: 600px) { .contract-horizontal-row { grid-template-columns: minmax(65px, 100px) minmax(40px, 1fr); } }

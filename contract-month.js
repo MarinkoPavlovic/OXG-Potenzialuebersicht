@@ -63,12 +63,15 @@
     if (!monthRows.length) { detail.append(text('p','Für diese Auswahl liegen keine Gestattungen mit gültigem Datum vor.')); return; }
     const advisors=group(monthRows,2);
     const advisorMax=Math.max(1,...advisors.flatMap(g=>[g.count,g.units]));
+    const canExpandCities=!citySelect.value || citySelect.value==='all';
+    if(!canExpandCities) selectedAdvisor='';
     for(const [index,g] of advisors.entries()) {
-      const button=horizontalRow(g,advisorMax,true);
-      button.querySelector('.contract-horizontal-name').textContent = `${index + 1}. ${g.name} ▾`;
+      const button=horizontalRow(g,advisorMax,canExpandCities);
+      button.querySelector('.contract-horizontal-name').textContent = `${index + 1}. ${g.name}${canExpandCities?' ▾':''}`;
       if(index % 2 === 1) button.classList.add('contract-advisor-alternate');
-      button.addEventListener('click',()=>{selectedAdvisor=selectedAdvisor===g.name?'':g.name; showDetails(rows);}); detail.append(button);
-      if(selectedAdvisor===g.name) {
+      if(canExpandCities) button.addEventListener('click',()=>{selectedAdvisor=selectedAdvisor===g.name?'':g.name; showDetails(rows);});
+      detail.append(button);
+      if(canExpandCities && selectedAdvisor===g.name) {
         const cities=group(g.rows,1);
         const list=document.createElement('div'); list.className='contract-detail-cities';
         for(const city of cities) list.append(horizontalRow(city,advisorMax,false));
