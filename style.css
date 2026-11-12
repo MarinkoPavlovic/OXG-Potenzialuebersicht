@@ -272,6 +272,7 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-month-column { width: min(18px, 42%); min-width: 0; }
 .contract-month-label { font-size: clamp(.55rem, 1.1vw, .78rem); }
 .contract-month-value { font-size: clamp(.55rem, 1.1vw, .72rem); }
+.contract-month-bar { cursor: default; }
 .contract-horizontal-row { grid-template-columns: minmax(65px, 105px) minmax(55px, 1fr); }
 .contract-horizontal-tracks { padding-right: 3em; }
 .contract-horizontal-line { position: relative; background: transparent; overflow: visible; }

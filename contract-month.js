@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  let selectedMonth = '', selectedAdvisor = '';
+  let selectedAdvisor = '';
   const chart = document.querySelector('#contractMonthChart');
   const detail = document.querySelector('#contractMonthDetail');
   const detailPanel = document.querySelector('#contractDetailPanel');
@@ -50,9 +50,8 @@
   function showDetails(rows) {
     detail.replaceChildren();
     detailPanel.hidden = false;
-    let monthRows=rows.filter(x=>!selectedMonth || x.date.slice(0,7)===selectedMonth).map(x=>x.row);
-    if (selectedMonth && !monthRows.length) { selectedMonth=''; selectedAdvisor=''; monthRows=rows.map(x=>x.row); }
-    detail.append(text('h3', selectedMonth ? `Berater · ${label(selectedMonth)}` : 'Gestattungen nach Berater'));
+    const monthRows=rows.map(x=>x.row);
+    detail.append(text('h3', 'Gestattungen nach Berater'));
     detail.append(legend());
     if (!monthRows.length) { detail.append(text('p','Für diese Auswahl liegen keine Gestattungen mit gültigem Datum vor.')); return; }
     const advisors=group(monthRows,2);
@@ -71,9 +70,11 @@
   }
   window.refreshContractMonth = () => {
     const year=yearSelect.value, month=monthSelect.value;
-    const rows=typeRecords({ignoreYear:true,ignoreMonth:true}).filter(r=>r[4]==='Vertrag abgeschlossen').map(row=>({row,date:latestDate(row[17])})).filter(x=>x.date && (!year || year==='all' || x.date.startsWith(year+'-')) && (!month || month==='all' || x.date.slice(0,7)===month));
+    const asDatedContracts = records => records.filter(r=>r[4]==='Vertrag abgeschlossen').map(row=>({row,date:latestDate(row[17])})).filter(x=>x.date);
+    const allRows=asDatedContracts(liveRecords ?? leadTypeRecords);
+    const rows=asDatedContracts(typeRecords({ignoreYear:true,ignoreMonth:true})).filter(x=>(!year || year==='all' || x.date.startsWith(year+'-')) && (!month || month==='all' || x.date.slice(0,7)===month));
     const groups=new Map();
-    for(const x of rows) {const key=x.date.slice(0,7), g=groups.get(key)||{count:0,units:0};g.count++;g.units+=Number(x.row[3])||0;groups.set(key,g);}
+    for(const x of allRows) {const key=x.date.slice(0,7), g=groups.get(key)||{count:0,units:0};g.count++;g.units+=Number(x.row[3])||0;groups.set(key,g);}
     const entries=[...groups].sort((a,b)=>a[0].localeCompare(b[0]));
     const maximum=Math.max(1,...entries.flatMap(([,g])=>[g.count,g.units]));
     const step=Math.max(1,Math.pow(10,Math.floor(Math.log10(maximum/4)))); const axisMax=Math.ceil(maximum/step/4)*4*step;
@@ -86,7 +87,7 @@
     for(let i=4;i>=0;i--)axis.append(text('span',fmt.format(Math.round(axisMax*i/4))));
     const columns=document.createElement('div');columns.className='contract-chart-columns';
     for(const [key,g] of entries) {
-      const button=document.createElement('button'); button.type='button'; button.className='contract-month-bar'; button.setAttribute('aria-pressed',String(selectedMonth===key));
+      const button=document.createElement('div'); button.className='contract-month-bar'; button.setAttribute('role','img');
       button.setAttribute('aria-label',`${label(key)}: ${fmt.format(g.count)} Objekte, ${fmt.format(g.units)} Wohneinheiten`);
       const area=document.createElement('span');area.className='contract-month-bar-area';
       for(const [value,kind] of [[g.count,'objects'],[g.units,'units']]) {
@@ -95,7 +96,7 @@
         const fill=document.createElement('span');fill.className=`contract-month-bar-fill ${kind}`;column.append(fill);area.append(column);
       }
       button.append(area,text('span',`${key.slice(5,7)}-${key.slice(2,4)}`,'contract-month-label'));
-      button.addEventListener('click',()=>{selectedMonth=selectedMonth===key?'':key;selectedAdvisor='';window.refreshContractMonth();});columns.append(button);
+      columns.append(button);
     }
     plot.append(axis,columns);scroll.append(plot);chart.append(scroll);
     showDetails(rows);
