@@ -26,19 +26,40 @@
     return [...groups.values()].sort((a,b) => a.name.localeCompare(b.name, 'de', {sensitivity:'base', numeric:true}));
   }
   function text(tag, value, className) { const el=document.createElement(tag); el.textContent=value; if(className)el.className=className; return el; }
+  function legend() {
+    const el=document.createElement('div'); el.className='contract-legend';
+    el.append(text('span','Objekte','contract-legend-objects'),text('span','Wohneinheiten','contract-legend-units'));
+    return el;
+  }
+  function horizontalRow(g, max, isAdvisor) {
+    const row=document.createElement(isAdvisor?'button':'div'); row.className='contract-horizontal-row';
+    if(isAdvisor) { row.type='button'; row.setAttribute('aria-expanded',String(selectedAdvisor===g.name)); }
+    row.append(text('span',`${g.name}${isAdvisor?' ▾':''}`,'contract-horizontal-name'));
+    const tracks=document.createElement('span'); tracks.className='contract-horizontal-tracks';
+    for(const [value,kind] of [[g.count,'objects'],[g.units,'units']]) {
+      const line=document.createElement('span'); line.className='contract-horizontal-line';
+      const fill=document.createElement('span'); fill.className=`contract-horizontal-fill ${kind}`; fill.style.width=`${value/max*100}%`;
+      line.append(fill); tracks.append(line);
+    }
+    row.append(tracks,text('span',`${fmt.format(g.count)} Objekte · ${fmt.format(g.units)} WE`,'contract-horizontal-values'));
+    return row;
+  }
   function showDetails(rows) {
     detail.replaceChildren();
     if (!selectedMonth) return;
     const monthRows=rows.filter(x=>x.date.slice(0,7)===selectedMonth).map(x=>x.row);
     if (!monthRows.length) { selectedMonth=''; selectedAdvisor=''; return; }
     detail.append(text('h3', `Berater · ${label(selectedMonth)}`));
-    for(const g of group(monthRows,2)) {
-      const button=text('button', `${g.name}  ·  ${fmt.format(g.count)} Objekte (${fmt.format(g.units)} WE)`, 'contract-detail-advisor');
-      button.type='button'; button.setAttribute('aria-expanded',String(selectedAdvisor===g.name));
+    const advisors=group(monthRows,2);
+    const advisorMax=Math.max(1,...advisors.flatMap(g=>[g.count,g.units]));
+    for(const g of advisors) {
+      const button=horizontalRow(g,advisorMax,true);
       button.addEventListener('click',()=>{selectedAdvisor=selectedAdvisor===g.name?'':g.name; showDetails(rows);}); detail.append(button);
       if(selectedAdvisor===g.name) {
-        const list=document.createElement('ul'); list.className='contract-detail-cities';
-        for(const city of group(g.rows,1)) list.append(text('li', `${city.name}  ·  ${fmt.format(city.count)} Objekte (${fmt.format(city.units)} WE)`));
+        const cities=group(g.rows,1), cityMax=Math.max(1,...cities.flatMap(city=>[city.count,city.units]));
+        const list=document.createElement('div'); list.className='contract-detail-cities';
+        list.append(text('h4',`Orte · ${g.name}`));
+        for(const city of cities) list.append(horizontalRow(city,cityMax,false));
         detail.append(list);
       }
     }
@@ -48,14 +69,30 @@
     const rows=typeRecords({ignoreYear:true,ignoreMonth:true}).filter(r=>r[4]==='Vertrag abgeschlossen').map(row=>({row,date:latestDate(row[17])})).filter(x=>x.date && (!year || year==='all' || x.date.startsWith(year+'-')) && (!month || month==='all' || x.date.slice(0,7)===month));
     const groups=new Map();
     for(const x of rows) {const key=x.date.slice(0,7), g=groups.get(key)||{count:0,units:0};g.count++;g.units+=Number(x.row[3])||0;groups.set(key,g);}
-    const entries=[...groups].sort((a,b)=>a[0].localeCompare(b[0])); const max=Math.max(1,...entries.map(x=>x[1].count));
+    const entries=[...groups].sort((a,b)=>a[0].localeCompare(b[0]));
+    const maximum=Math.max(1,...entries.flatMap(([,g])=>[g.count,g.units]));
+    const step=Math.max(1,Math.pow(10,Math.floor(Math.log10(maximum/4)))); const axisMax=Math.ceil(maximum/step/4)*4*step;
     chart.replaceChildren(); empty.hidden=entries.length>0;
+    if(!entries.length){showDetails(rows);return;}
+    chart.append(legend());
+    const scroll=document.createElement('div');scroll.className='contract-chart-scroll';
+    const plot=document.createElement('div');plot.className='contract-chart-plot';
+    const axis=document.createElement('div');axis.className='contract-chart-axis';
+    for(let i=4;i>=0;i--)axis.append(text('span',fmt.format(Math.round(axisMax*i/4))));
+    const columns=document.createElement('div');columns.className='contract-chart-columns';
     for(const [key,g] of entries) {
       const button=document.createElement('button'); button.type='button'; button.className='contract-month-bar'; button.setAttribute('aria-pressed',String(selectedMonth===key));
-      button.append(text('span',`${fmt.format(g.count)} (${fmt.format(g.units)} WE)`,'contract-month-value'));
-      const area=document.createElement('span');area.className='contract-month-bar-area';const bar=document.createElement('span');bar.className='contract-month-bar-fill';bar.style.height=`${Math.max(3,g.count/max*100)}%`;area.append(bar);button.append(area,text('span',label(key),'contract-month-label'));
-      button.addEventListener('click',()=>{selectedMonth=selectedMonth===key?'':key;selectedAdvisor='';window.refreshContractMonth();});chart.append(button);
+      button.setAttribute('aria-label',`${label(key)}: ${fmt.format(g.count)} Objekte, ${fmt.format(g.units)} Wohneinheiten`);
+      const area=document.createElement('span');area.className='contract-month-bar-area';
+      for(const [value,kind] of [[g.count,'objects'],[g.units,'units']]) {
+        const column=document.createElement('span');column.className='contract-month-column';column.style.height=`${value/axisMax*100}%`;
+        column.append(text('span',fmt.format(value),'contract-month-value'));
+        const fill=document.createElement('span');fill.className=`contract-month-bar-fill ${kind}`;column.append(fill);area.append(column);
+      }
+      button.append(area,text('span',label(key),'contract-month-label'));
+      button.addEventListener('click',()=>{selectedMonth=selectedMonth===key?'':key;selectedAdvisor='';window.refreshContractMonth();});columns.append(button);
     }
+    plot.append(axis,columns);scroll.append(plot);chart.append(scroll);
     showDetails(rows);
   };
   window.refreshContractMonth();
