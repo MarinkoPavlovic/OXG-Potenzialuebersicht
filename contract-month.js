@@ -64,7 +64,6 @@
       if(selectedAdvisor===g.name) {
         const cities=group(g.rows,1), cityMax=Math.max(1,...cities.flatMap(city=>[city.count,city.units]));
         const list=document.createElement('div'); list.className='contract-detail-cities';
-        list.append(text('h4',`Orte · ${g.name}`));
         for(const city of cities) list.append(horizontalRow(city,cityMax,false));
         detail.append(list);
       }

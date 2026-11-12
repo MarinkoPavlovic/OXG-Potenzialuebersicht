@@ -277,6 +277,8 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-horizontal-tracks { padding-right: 3em; }
 .contract-horizontal-line { position: relative; background: transparent; overflow: visible; }
 .contract-horizontal-number { position: absolute; top: 50%; transform: translateY(-50%); margin-left: .35em; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.contract-detail-cities { padding: .15rem .35rem; }
+.contract-detail-cities .contract-horizontal-row { padding-top: .15rem; padding-bottom: .15rem; }
 button.contract-horizontal-row.contract-advisor-alternate { background: #f2f8f7; }
 button.contract-horizontal-row.contract-advisor-alternate:hover, button.contract-horizontal-row.contract-advisor-alternate[aria-expanded="true"] { background: #e3f1ee; }
 @media(max-width: 600px) { .contract-horizontal-row { grid-template-columns: minmax(65px, 100px) minmax(40px, 1fr); } }
