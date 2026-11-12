@@ -91,7 +91,7 @@
         column.append(text('span',fmt.format(value),'contract-month-value'));
         const fill=document.createElement('span');fill.className=`contract-month-bar-fill ${kind}`;column.append(fill);area.append(column);
       }
-      button.append(area,text('span',label(key),'contract-month-label'));
+      button.append(area,text('span',`${key.slice(5,7)}-${key.slice(2,4)}`,'contract-month-label'));
       button.addEventListener('click',()=>{selectedMonth=selectedMonth===key?'':key;selectedAdvisor='';window.refreshContractMonth();});columns.append(button);
     }
     plot.append(axis,columns);scroll.append(plot);chart.append(scroll);
