@@ -282,6 +282,8 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-detail-cities .contract-horizontal-row:nth-child(even) { background: #fff; }
 .contract-detail-cities { margin: 0 -23px .3rem; padding: 0; border-left: 0; }
 .contract-detail-cities .contract-horizontal-row { padding-left: calc(23px + .8rem); padding-right: calc(23px + .35rem); }
+.contract-detail-cities .contract-horizontal-fill.objects { background: #68b6ac; }
+.contract-detail-cities .contract-horizontal-fill.units { background: #efce70; }
 button.contract-horizontal-row.contract-advisor-alternate { background: #f2f8f7; }
 button.contract-horizontal-row.contract-advisor-alternate:hover, button.contract-horizontal-row.contract-advisor-alternate[aria-expanded="true"] { background: #e3f1ee; }
 @media(max-width: 600px) { .contract-horizontal-row { grid-template-columns: minmax(65px, 100px) minmax(40px, 1fr); } }
