@@ -253,3 +253,14 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-detail-cities { margin: 0 0 .5rem 1.25rem; padding: .6rem; background: #f6faf9; border-left: 2px solid #b8d8d3; }
 .contract-detail-cities h4 { margin: 0 0 .35rem; font-size: .9rem; }
 @media(max-width: 600px) { .contract-horizontal-row { grid-template-columns: minmax(70px, 100px) minmax(50px, 1fr); gap: .35rem; } .contract-horizontal-values { grid-column: 2; text-align: left; } }
+.contract-month-panel, .contract-detail-panel { grid-column: auto; min-width: 0; }
+.contract-month-detail { margin: 0; padding: 0; border: 0; }
+.contract-month-detail h3 { margin-bottom: .5rem; }
+.contract-chart-columns { min-width: 320px; }
+.contract-month-bar { min-width: 90px; }
+.contract-horizontal-row { grid-template-columns: minmax(65px, 105px) minmax(55px, 1fr) auto; gap: .45rem; padding: .3rem .35rem; font-size: .83rem; }
+.contract-horizontal-tracks { gap: 3px; }
+.contract-horizontal-line { height: 7px; }
+.contract-horizontal-values { font-size: .74rem; }
+.contract-detail-cities { margin: 0 0 .3rem .6rem; padding: .35rem; }
+@media(max-width: 600px) { .contract-horizontal-row { grid-template-columns: minmax(65px, 100px) minmax(40px, 1fr) auto; gap: .3rem; } .contract-horizontal-values { grid-column: auto; text-align: right; font-size: .7rem; } }

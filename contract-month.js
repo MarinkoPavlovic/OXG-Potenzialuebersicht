@@ -3,6 +3,7 @@
   let selectedMonth = '', selectedAdvisor = '';
   const chart = document.querySelector('#contractMonthChart');
   const detail = document.querySelector('#contractMonthDetail');
+  const detailPanel = document.querySelector('#contractDetailPanel');
   const empty = document.querySelector('#contractMonthEmpty');
   const fmt = new Intl.NumberFormat('de-DE');
   const label = key => new Intl.DateTimeFormat('de-DE', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(`${key}-01T00:00:00Z`));
@@ -46,9 +47,10 @@
   }
   function showDetails(rows) {
     detail.replaceChildren();
+    detailPanel.hidden = !selectedMonth;
     if (!selectedMonth) return;
     const monthRows=rows.filter(x=>x.date.slice(0,7)===selectedMonth).map(x=>x.row);
-    if (!monthRows.length) { selectedMonth=''; selectedAdvisor=''; return; }
+    if (!monthRows.length) { selectedMonth=''; selectedAdvisor=''; detailPanel.hidden=true; return; }
     detail.append(text('h3', `Berater · ${label(selectedMonth)}`));
     const advisors=group(monthRows,2);
     const advisorMax=Math.max(1,...advisors.flatMap(g=>[g.count,g.units]));
