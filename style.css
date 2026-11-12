@@ -297,6 +297,10 @@ button.contract-horizontal-row:hover, button.contract-horizontal-row[aria-expand
 .contract-detail-cities { margin: 0; padding: 0; border: 0; background: #f3f8f7; }
 .contract-detail-cities .contract-horizontal-row { padding: .15rem .35rem; }
 .contract-detail-cities .contract-horizontal-row:nth-child(even) { background: #e7f2f0; }
+.contract-detail-cities { background: #f1f1f1; }
+.contract-detail-cities .contract-horizontal-row:nth-child(even) { background: #e2e2e2; }
+.contract-detail-cities .contract-horizontal-fill.objects { background: #777f80; }
+.contract-detail-cities .contract-horizontal-fill.units { background: #535d5e; }
 .contract-detail-cities .contract-horizontal-name { padding-left: .8rem; }
 button.contract-horizontal-row.contract-advisor-alternate { background: #f2f8f7; }
 button.contract-horizontal-row.contract-advisor-alternate:hover, button.contract-horizontal-row.contract-advisor-alternate[aria-expanded="true"] { background: #e3f1ee; }
