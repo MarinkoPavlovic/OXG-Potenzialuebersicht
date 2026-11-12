@@ -62,9 +62,9 @@
       if(index % 2 === 1) button.classList.add('contract-advisor-alternate');
       button.addEventListener('click',()=>{selectedAdvisor=selectedAdvisor===g.name?'':g.name; showDetails(rows);}); detail.append(button);
       if(selectedAdvisor===g.name) {
-        const cities=group(g.rows,1), cityMax=Math.max(1,...cities.flatMap(city=>[city.count,city.units]));
+        const cities=group(g.rows,1);
         const list=document.createElement('div'); list.className='contract-detail-cities';
-        for(const city of cities) list.append(horizontalRow(city,cityMax,false));
+        for(const city of cities) list.append(horizontalRow(city,advisorMax,false));
         detail.append(list);
       }
     }
@@ -88,6 +88,9 @@
     const axis=document.createElement('div');axis.className='contract-chart-axis';
     for(let i=4;i>=0;i--)axis.append(text('span',fmt.format(Math.round(axisMax*i/4))));
     const columns=document.createElement('div');columns.className='contract-chart-columns';
+    const wall=document.createElement('div');wall.className='chart-wall contract-chart-wall';wall.setAttribute('aria-hidden','true');
+    for(const name of ['chart-back-grid','chart-floor','chart-side']) {const surface=document.createElement('div');surface.className=name;wall.append(surface);}
+    columns.append(wall);
     for(const [key,g] of entries) {
       const button=document.createElement('div'); button.className='contract-month-bar'; button.setAttribute('role','img');
       button.setAttribute('aria-label',`${label(key)}: ${fmt.format(g.count)} Objekte, ${fmt.format(g.units)} Wohneinheiten`);
