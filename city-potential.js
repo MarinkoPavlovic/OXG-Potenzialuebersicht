@@ -148,7 +148,7 @@ function makeCityPotentialRow(name, totals, kind) {
   row.className = `city-potential-${kind}`;
   const label = document.createElement('th');
   label.scope = 'row';
-  label.textContent = ['street', 'advisor'].includes(kind) ? `└ ${name}` : name;
+  label.textContent = kind === 'street' ? `└ ${name}` : name;
   row.append(label);
   const count = document.createElement('td');
   count.textContent = number(totals.total);
@@ -195,34 +195,10 @@ function refreshCityPotential() {
 
   summary.cities.forEach(city => {
     const row = makeCityPotentialRow(city.name, city, 'city');
-    const streetEntries = city.streets.map(street => {
+    const streetRows = city.streets.map(street => {
       const child = makeCityPotentialRow(street.name, street, 'street');
       child.hidden = true;
-      const advisorRows = street.advisors.map(advisor => {
-        const months = advisor.months.map(month => monthLabel(month)).join(', ');
-        const label = months ? `${advisor.name} (${months})` : advisor.name;
-        const advisorRow = makeCityPotentialRow(label, advisor, 'advisor');
-        advisorRow.hidden = true;
-        return advisorRow;
-      });
-      const streetButton = document.createElement('button');
-      streetButton.type = 'button';
-      streetButton.className = 'city-potential-toggle';
-      const setExpanded = expanded => {
-        streetButton.textContent = `└ ${street.name} ${expanded ? '▴' : '▾'}`;
-        streetButton.setAttribute('aria-expanded', String(expanded));
-        streetButton.setAttribute('aria-label', `Berater für ${street.name} in ${city.name} ${expanded ? 'ausblenden' : 'anzeigen'}`);
-        advisorRows.forEach(advisorRow => { advisorRow.hidden = !expanded; });
-      };
-      const toggleStreet = () => setExpanded(streetButton.getAttribute('aria-expanded') !== 'true');
-      setExpanded(false);
-      streetButton.addEventListener('click', event => {
-        event.stopPropagation();
-        toggleStreet();
-      });
-      child.addEventListener('click', toggleStreet);
-      child.firstChild.replaceChildren(streetButton);
-      return {row: child, advisorRows, close: () => setExpanded(false)};
+      return child;
     });
     const button = document.createElement('button');
     button.type = 'button';
@@ -235,14 +211,11 @@ function refreshCityPotential() {
       button.setAttribute('aria-expanded', String(expanded));
       button.setAttribute('aria-label', `Straßen für ${city.name} ${expanded ? 'ausblenden' : 'anzeigen'}`);
       button.textContent = `${city.name} ${expanded ? '▴' : '▾'}`;
-      streetEntries.forEach(entry => {
-        entry.row.hidden = !expanded;
-        if (!expanded) entry.close();
-      });
+      streetRows.forEach(streetRow => { streetRow.hidden = !expanded; });
     });
     row.firstChild.replaceChildren(button);
     body.append(row);
-    streetEntries.forEach(entry => body.append(entry.row, ...entry.advisorRows));
+    streetRows.forEach(streetRow => body.append(streetRow));
   });
   document.querySelector('#cityPotentialTotals').replaceChildren(makeCityPotentialRow('Gesamt', summary.totals, 'total'));
   document.querySelector('#cityPotentialEmpty').hidden = summary.totals.total > 0;
