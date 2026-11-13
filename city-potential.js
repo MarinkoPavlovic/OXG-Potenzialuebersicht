@@ -166,7 +166,7 @@ function makeCityPotentialRow(name, totals, kind) {
     rate.className = `${categoryClass} city-potential-rate`;
     count.textContent = number(totals[category]);
     units.textContent = number(totals.categoryUnits[category]);
-    const rateBase = category === 'contract' ? Math.max(0, totals.total - totals.nonmarketable) : totals.total;
+    const rateBase = category === 'nonmarketable' ? totals.total : Math.max(0, totals.total - totals.nonmarketable);
     rate.textContent = rateBase ? pct(totals[category], rateBase) : '–';
     row.append(count, units, rate);
   });
