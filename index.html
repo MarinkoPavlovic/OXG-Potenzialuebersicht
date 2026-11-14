@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="dashboard-app-icon.svg">
     <link rel="apple-touch-icon" href="header-deutschland-tuerkis.png?v=icon">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=20261113-remove-contract-charts">
+    <link rel="stylesheet" href="style.css?v=20261114-hv-note-search">
   </head>
   <body>
     <main class="shell">
@@ -161,6 +161,10 @@
       </div>
       <dialog id="leadDetails" class="lead-dialog" aria-labelledby="leadDetailsTitle">
         <div class="lead-dialog-head"><h2 id="leadDetailsTitle">Leads</h2><div class="lead-dialog-actions"><button type="button" id="exportLeadDetails">Excel Export</button><button type="button" id="closeLeadDetails" aria-label="Detailansicht schließen">Schließen</button></div></div>
+        <div id="leadNoteSearch" class="lead-note-search" hidden>
+          <label for="leadNoteSearchInput">Notizen durchsuchen</label>
+          <div class="lead-note-search-field"><input id="leadNoteSearchInput" type="search" placeholder="Name der Hausverwaltung oder Text aus der Notiz" autocomplete="off" aria-controls="leadDetailsRows" aria-describedby="leadDetailsInfo"><button type="button" id="clearLeadNoteSearch" disabled>Suche löschen</button></div>
+        </div>
         <p id="leadDetailsInfo" role="status"></p>
         <div class="lead-table-wrap"><table class="lead-table"><thead><tr><th scope="col">Berater</th><th scope="col">ADS-ID</th><th scope="col">WE</th><th scope="col">Adresse</th><th scope="col">Bemerkung</th><th scope="col" id="contractIndicatorHeader" title="Abgleich mit allen geladenen Listen">Vertrag vorhanden</th></tr></thead><tbody id="leadDetailsRows"></tbody></table></div>
         <button type="button" id="moreLeadDetails" hidden>Weitere Leads anzeigen</button>
@@ -174,13 +178,13 @@
     <script src="todo-data.js"></script>
     <script src="lead-types-data.js"></script>
     <script src="app.js?v=20261113-advisor-total-no-percent"></script>
-    <script src="lead-details.js?v=20261104-filter-title"></script>
+    <script src="lead-details.js?v=20261114-hv-note-search"></script>
     <script src="city-potential.js?v=20261113-marketable-category-rates"></script>
     <script src="table-fit.js?v=20261110-fit-available-space"></script>
     <script src="object-search.js?v=20261109-street-filter"></script>
     <script src="jszip.min.js"></script>
     <script src="export-template.js"></script>
-    <script src="lead-export.js?v=20261110-potential-export"></script>
+    <script src="lead-export.js?v=20261114-hv-note-search"></script>
     <script type="module" src="cloud-app.js?v=20261109-street-filter"></script>
   </body>
 </html>

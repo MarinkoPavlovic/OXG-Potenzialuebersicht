@@ -209,3 +209,12 @@
 .city-potential-table tbody > tr:nth-child(even of :not([hidden])) > * {
   background-image: linear-gradient(rgba(18, 61, 62, .045), rgba(18, 61, 62, .045));
 }
+
+.lead-note-search { margin: 16px 0 12px; }
+.lead-note-search[hidden] { display: none; }
+.lead-note-search label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #123d3e; }
+.lead-note-search-field { display: flex; gap: 8px; }
+.lead-note-search input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid #b6ccc6; border-radius: 7px; background: #fff; color: #123d3e; font: inherit; font-size: 13px; }
+.lead-note-search button { flex: none; padding: 8px 12px; border: 1px solid #b6ccc6; border-radius: 7px; background: #edf6f3; color: #123d3e; font: inherit; font-size: 13px; cursor: pointer; }
+.lead-note-search button:disabled { opacity: .5; cursor: default; }
+.lead-note-search input:focus-visible, .lead-note-search button:focus-visible { outline: 2px solid #32727c; outline-offset: 2px; }

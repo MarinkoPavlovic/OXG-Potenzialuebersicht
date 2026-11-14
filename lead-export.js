@@ -121,7 +121,7 @@ exportLeadButton.addEventListener('click',async()=>{
     const records=uniqueExportRecords(leadDetailRecords.filter(row=>!hasExistingContract(row,contractedLeadIds)));
     await saveLeadWorkbook(filename,records,activeLeadDetail);
   } catch(error) { if(error.name!=='AbortError')leadDetailsInfo.textContent=`Excel-Export fehlgeschlagen: ${error.message}`; }
-  finally {exportLeadButton.disabled=liveRecords===null || !canExportLeadDetails();}
+  finally {exportLeadButton.disabled=liveRecords===null || !canExportLeadDetails() || !leadDetailRecords.length;}
 });
 function potentialExportRecords() {
   return advisorRecords().slice().sort(compareGestattungLeads);

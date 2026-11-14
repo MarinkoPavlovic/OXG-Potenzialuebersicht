@@ -3,6 +3,14 @@ const leadDetailsTitle = document.querySelector('#leadDetailsTitle');
 const leadDetailsInfo = document.querySelector('#leadDetailsInfo');
 const leadDetailsRows = document.querySelector('#leadDetailsRows');
 const moreLeadDetails = document.querySelector('#moreLeadDetails');
+const leadNoteSearch = document.querySelector('#leadNoteSearch');
+const leadNoteSearchInput = document.querySelector('#leadNoteSearchInput');
+const clearLeadNoteSearch = document.querySelector('#clearLeadNoteSearch');
+function matchesLeadNoteSearch(row) {
+  const normalize = value => String(value ?? '').normalize('NFKC').toLocaleLowerCase('de-DE').replace(/\s+/g, ' ').trim();
+  const query = activeLeadDetail === 'hv' ? normalize(leadNoteSearchInput.value) : '';
+  return !query || normalize(row[17]).includes(query);
+}
 const leadDetailLabels = {contract:'Gestattung',unworked:'Nicht ermittelt',owner:'Eigentümer im Objekt',hv:'Hausverwaltung',onsite:'To-dos vor Ort',inprogress:'In Bearbeitung',interest:'Kein Interesse',nonmarketable:'Nicht vermarktbar',search:'Objektdetails'};
 let activeLeadDetail = null, leadDetailRecords = [], visibleLeadCount = 0;
 let contractedLeadIds = new Set();
@@ -87,7 +95,7 @@ function appendLeadDetails() {
   leadDetailsInfo.textContent=formatLeadSummary(leadDetailRecords,visibleLeadCount);
 }
 function canExportLeadDetails() {
-  const hasFilter = [citySelect, yearSelect, monthSelect, leadTypeSelect].some(select => select.value && select.value !== 'all') || selectedAdvisors.size > 0;
+  const hasFilter = [citySelect, yearSelect, monthSelect, leadTypeSelect].some(select => select.value && select.value !== 'all') || selectedAdvisors.size > 0 || (activeLeadDetail === 'hv' && leadNoteSearchInput.value.trim());
   return Boolean(activeLeadDetail && !['contract', 'search'].includes(activeLeadDetail) && hasFilter);
 }
 function leadDetailsHeading() {
@@ -105,20 +113,30 @@ function leadDetailsHeading() {
 function refreshLeadDetails() {
   if(!leadDetailsDialog.open||!activeLeadDetail)return;
   leadDetailsTitle.textContent = leadDetailsHeading();
+  leadNoteSearch.hidden = activeLeadDetail !== 'hv';
+  clearLeadNoteSearch.disabled = !leadNoteSearchInput.value;
   leadDetailsRows.replaceChildren();visibleLeadCount=0;moreLeadDetails.hidden=true;
   document.querySelector('#contractIndicatorHeader').hidden=activeLeadDetail==='contract';
   document.querySelector('#exportLeadDetails').hidden = !canExportLeadDetails();
-  document.querySelector('#exportLeadDetails').disabled = liveRecords === null || !canExportLeadDetails();
+  document.querySelector('#exportLeadDetails').disabled = true;
   if(liveRecords===null){leadDetailsInfo.textContent='Für die Einzelansicht bitte zuerst die Beraterlisten über OneDrive vollständig einlesen.';return;}
   contractedLeadIds=collectContractedLeadIds(liveRecords);
-  leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail)).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
+  leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row)).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
   appendLeadDetails();
+  document.querySelector('#exportLeadDetails').disabled = !canExportLeadDetails() || !leadDetailRecords.length;
 }
 window.refreshLeadDetails=refreshLeadDetails;
 document.querySelectorAll('.detail-trigger').forEach(trigger=>{
-  const open=()=>{activeLeadDetail=trigger.dataset.detail;leadDetailsDialog.showModal();refreshLeadDetails();};
+  const open=()=>{activeLeadDetail=trigger.dataset.detail;leadNoteSearchInput.value='';leadDetailsDialog.showModal();refreshLeadDetails();};
   trigger.addEventListener('click',open);
   trigger.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
 });
 document.querySelector('#closeLeadDetails').addEventListener('click',()=>leadDetailsDialog.close());
 moreLeadDetails.addEventListener('click',appendLeadDetails);
+
+leadNoteSearchInput.addEventListener('input', refreshLeadDetails);
+clearLeadNoteSearch.addEventListener('click', () => {
+  leadNoteSearchInput.value = '';
+  refreshLeadDetails();
+  leadNoteSearchInput.focus();
+});
