@@ -198,6 +198,7 @@ function makeCityPotentialRow(name, totals, kind) {
   const label = document.createElement('th');
   label.scope = 'row';
   label.textContent = ['street', 'advisor'].includes(kind) ? `└ ${name}` : name;
+  if (kind === 'street') label.title = name;
   row.append(label);
   const count = document.createElement('td');
   count.textContent = number(totals.total);
@@ -258,6 +259,7 @@ function refreshCityPotential() {
         const streetButton = document.createElement('button');
         streetButton.type = 'button';
         streetButton.className = 'city-potential-toggle';
+        streetButton.title = street.name;
         const setExpanded = expanded => {
           streetButton.textContent = `└ ${street.name} ${expanded ? '▴' : '▾'}`;
           streetButton.setAttribute('aria-expanded', String(expanded));

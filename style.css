@@ -233,3 +233,5 @@
 .advisor-table.city-potential-table .advisor-city-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
 .advisor-panel { padding-bottom: 9px; }
 .advisor-panel .object-search { margin-top: 16px; padding-top: 8px; }
+.city-potential-panel .city-potential-table .city-potential-street > th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.city-potential-panel .city-potential-street .city-potential-toggle { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
