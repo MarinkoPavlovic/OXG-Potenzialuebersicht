@@ -49,6 +49,35 @@ function emptyCityPotentialTotals() {
   };
 }
 
+function uniqueCityPotentialExportRecords(allRecords, selectedRecords) {
+  const keys = new Map(), bestStatus = new Map(), selected = new Map(), latestUnits = new Map();
+  allRecords.forEach((row, index) => {
+    const key = uniquePotentialKey(row, index);
+    keys.set(row, key);
+    const previous = bestStatus.get(key);
+    const priority = cityPotentialPriority.indexOf(uniquePotentialCategory(row));
+    if (!previous || priority < previous.priority || (priority === previous.priority && preferPotentialAddress(row, previous.row))) {
+      bestStatus.set(key, {row, priority});
+    }
+  });
+  selectedRecords.forEach((row, index) => {
+    const key = keys.get(row) ?? uniquePotentialKey(row, allRecords.length + index);
+    const previous = selected.get(key);
+    if (!previous || preferPotentialAddress(row, previous)) selected.set(key, row);
+    const units = Number(row[3]), period = String(row[0] ?? ''), current = latestUnits.get(key);
+    if (Number.isFinite(units) && units >= 0 && (!current || period > current.period || (period === current.period && units > current.value))) {
+      latestUnits.set(key, {period, value: units});
+    }
+  });
+  return [...selected].map(([key, row]) => {
+    const result = row.slice(), statusRow = bestStatus.get(key)?.row ?? row;
+    result[3] = latestUnits.get(key)?.value ?? 0;
+    result[4] = statusRow[4];
+    if (!String(statusRow[4] ?? '').trim()) result[5] = statusRow[5];
+    return result;
+  });
+}
+
 function buildUniquePotentialSummary(allRecords, selectedRecords) {
   const keys = new Map();
   const bestCategories = new Map();

@@ -151,7 +151,7 @@ exportPotentialButton.addEventListener('click',async()=>{
 });
 
 function cityPotentialExportRecords() {
-  return cityPotentialRecords().slice().sort(compareGestattungLeads);
+  return uniqueCityPotentialExportRecords(liveRecords ?? [], cityPotentialRecords()).sort(compareGestattungLeads);
 }
 function cityPotentialExportFilename() {
   const scope = ['Potenzialausschöpfung'];
