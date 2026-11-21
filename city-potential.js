@@ -177,7 +177,7 @@ function makeCityPotentialRow(name, totals, kind) {
   row.className = `city-potential-${kind}`;
   const label = document.createElement('th');
   label.scope = 'row';
-  label.textContent = kind === 'street' ? `└ ${name}` : name;
+  label.textContent = ['street', 'advisor'].includes(kind) ? `└ ${name}` : name;
   row.append(label);
   const count = document.createElement('td');
   count.textContent = number(totals.total);
@@ -225,10 +225,33 @@ function refreshCityPotential() {
 
   summary.cities.forEach(city => {
     const row = makeCityPotentialRow(city.name, city, 'city');
-    const streetRows = city.streets.map(street => {
+    const streetEntries = city.streets.map(street => {
       const child = makeCityPotentialRow(street.name, street, 'street');
       child.hidden = true;
-      return child;
+      const advisorRows = street.advisors.length > 1 ? street.advisors.map(advisor => {
+        const advisorRow = makeCityPotentialRow(advisor.name, advisor, 'advisor');
+        advisorRow.hidden = true;
+        return advisorRow;
+      }) : [];
+      let close = () => {};
+      if (advisorRows.length) {
+        const streetButton = document.createElement('button');
+        streetButton.type = 'button';
+        streetButton.className = 'city-potential-toggle';
+        const setExpanded = expanded => {
+          streetButton.textContent = `└ ${street.name} ${expanded ? '▴' : '▾'}`;
+          streetButton.setAttribute('aria-expanded', String(expanded));
+          streetButton.setAttribute('aria-label', `Berater für ${street.name} in ${city.name} ${expanded ? 'ausblenden' : 'anzeigen'}`);
+          advisorRows.forEach(advisorRow => { advisorRow.hidden = !expanded; });
+        };
+        const toggleStreet = () => setExpanded(streetButton.getAttribute('aria-expanded') !== 'true');
+        close = () => setExpanded(false);
+        close();
+        streetButton.addEventListener('click', event => { event.stopPropagation(); toggleStreet(); });
+        child.addEventListener('click', toggleStreet);
+        child.firstChild.replaceChildren(streetButton);
+      }
+      return {row: child, advisorRows, close};
     });
     const button = document.createElement('button');
     button.type = 'button';
@@ -241,11 +264,11 @@ function refreshCityPotential() {
       button.setAttribute('aria-expanded', String(expanded));
       button.setAttribute('aria-label', `Straßen für ${city.name} ${expanded ? 'ausblenden' : 'anzeigen'}`);
       button.textContent = `${city.name} ${expanded ? '▴' : '▾'}`;
-      streetRows.forEach(streetRow => { streetRow.hidden = !expanded; });
+      streetEntries.forEach(entry => { entry.row.hidden = !expanded; if (!expanded) entry.close(); });
     });
     row.firstChild.replaceChildren(button);
     body.append(row);
-    streetRows.forEach(streetRow => body.append(streetRow));
+    streetEntries.forEach(entry => body.append(entry.row, ...entry.advisorRows));
   });
   document.querySelector('#cityPotentialTotals').replaceChildren(makeCityPotentialRow('Gesamt', summary.totals, 'total'));
   document.querySelector('#cityPotentialEmpty').hidden = summary.totals.total > 0;
