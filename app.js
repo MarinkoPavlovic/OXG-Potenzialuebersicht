@@ -75,10 +75,10 @@ function advisorDistribution() {
   const groups = new Map();
   advisorRecords().forEach(record=>{const name=record[2]||'Nicht zugeordnet';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(record);});
   return [...groups].map(([name,records])=>{
-    const cities=new Map();
-    records.forEach(record=>{const city=record[1]||'Nicht zugeordnet';if(!cities.has(city))cities.set(city,[]);cities.get(city).push(record);});
-    const byCity=[...cities].map(([city,rows])=>summarizeAdvisorRows(city,rows)).sort((a,b)=>a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));
-    return {...summarizeAdvisorRows(name,records),cities:byCity};
+    const lists=new Map();
+    records.forEach(record=>{const period=String(record[0]||'');const filename=String(record[14]||'').trim().replace(/\.(xlsx|xlsm|xls)$/i,'');const listName=filename || [period,record[1]||'Nicht zugeordnet'].filter(Boolean).join(' ');const key=JSON.stringify([period,listName]);if(!lists.has(key))lists.set(key,{period,name:listName,rows:[]});lists.get(key).rows.push(record);});
+    const byList=[...lists.values()].sort((a,b)=>a.period.localeCompare(b.period)||a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true})).map(list=>summarizeAdvisorRows(list.name,list.rows));
+    return {...summarizeAdvisorRows(name,records),cities:byList};
   }).sort((a,b) => a.name==='Nicht zugeordnet'?1:b.name==='Nicht zugeordnet'?-1:a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));
 }
 function advisorsForMonth(month) {
@@ -263,7 +263,7 @@ function render() {
     const nameCell=document.createElement(isTotal?'th':'td');
     if(isTotal)nameCell.setAttribute('scope','row');
     if(isCity){nameCell.className='advisor-city-name';nameCell.textContent=`└ ${row.name}`;}
-    else if(!isTotal && city==='all' && row.cities.length){const button=document.createElement('button');button.type='button';button.className='advisor-city-toggle';button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',`Orte für ${row.name} anzeigen`);button.textContent=`${row.name} ▾`;nameCell.append(button);tr._advisorToggle=button;}
+    else if(!isTotal && city==='all' && row.cities.length){const button=document.createElement('button');button.type='button';button.className='advisor-city-toggle';button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',`Listen für ${row.name} anzeigen`);button.textContent=`${row.name} ▾`;nameCell.append(button);tr._advisorToggle=button;}
     else nameCell.textContent=row.name;
     tr.append(nameCell);
     [number(row.leads),number(row.units)].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;tr.append(cell);});
@@ -284,7 +284,7 @@ function render() {
     if(tr._advisorToggle){
       const children=row.cities.map(cityRow=>{const child=makeAdvisorRow(cityRow,true,alternate);child.hidden=true;advisorRows.append(child);return child;});
       const button=tr._advisorToggle;
-      const toggle=()=>{const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',`Orte für ${row.name} ${open?'ausblenden':'anzeigen'}`);button.textContent=`${row.name} ${open?'▴':'▾'}`;children.forEach(child=>{child.hidden=!open;});};
+      const toggle=()=>{const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',`Listen für ${row.name} ${open?'ausblenden':'anzeigen'}`);button.textContent=`${row.name} ${open?'▴':'▾'}`;children.forEach(child=>{child.hidden=!open;});};
       button.addEventListener('click',event=>{event.stopPropagation();toggle();});
       tr.addEventListener('click',toggle);
     }
