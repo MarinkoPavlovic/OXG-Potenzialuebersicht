@@ -231,3 +231,5 @@
 .advisor-table col:nth-child(2) { width: calc(5ch + 12px); }
 .advisor-table col:nth-child(3) { width: calc(7ch + 10px); }
 .advisor-table.city-potential-table .advisor-city-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.advisor-panel { padding-bottom: 9px; }
+.advisor-panel .object-search { margin-top: 16px; padding-top: 8px; }
