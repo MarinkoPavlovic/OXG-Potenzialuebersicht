@@ -105,11 +105,20 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     const category = uniquePotentialCategory(row);
     const assignment = assignments.get(advisorKey);
     if (!assignment) {
-      assignments.set(advisorKey, {name: advisorName, category, months: new Set([row[0]].filter(Boolean))});
+      assignments.set(advisorKey, {name: advisorName, category, months: new Set([row[0]].filter(Boolean)), monthly: new Map()});
     } else {
       if (cityPotentialPriority.indexOf(category) < cityPotentialPriority.indexOf(assignment.category)) assignment.category = category;
       if (advisorName < assignment.name) assignment.name = advisorName;
       if (row[0]) assignment.months.add(row[0]);
+    }
+    const advisorAssignment = assignments.get(advisorKey);
+    const allocationMonth = String(row[0] ?? '');
+    const currentAllocation = advisorAssignment.monthly.get(allocationMonth);
+    const rowUnits = Number(row[3]);
+    if (!currentAllocation) advisorAssignment.monthly.set(allocationMonth, {category, units: Number.isFinite(rowUnits) && rowUnits >= 0 ? rowUnits : 0});
+    else {
+      if (cityPotentialPriority.indexOf(category) < cityPotentialPriority.indexOf(currentAllocation.category)) currentAllocation.category = category;
+      if (Number.isFinite(rowUnits) && rowUnits >= 0) currentAllocation.units = Math.max(currentAllocation.units, rowUnits);
     }
     const units = Number(row[3]);
     const period = String(row[0] ?? '');
@@ -132,7 +141,7 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
     const streetKey = normalizePotentialLocation(streetName);
     if (!cities.has(cityKey)) cities.set(cityKey, {name: cityName, ...emptyCityPotentialTotals(), streets: new Map()});
     const city = cities.get(cityKey);
-    if (!city.streets.has(streetKey)) city.streets.set(streetKey, {name: streetName, ...emptyCityPotentialTotals(), advisors: new Map()});
+    if (!city.streets.has(streetKey)) city.streets.set(streetKey, {name: streetName, ...emptyCityPotentialTotals(), advisors: new Map(), allocations: new Map()});
     const street = city.streets.get(streetKey);
     const category = bestCategories.get(key) ?? uniquePotentialCategory(row);
     const units = objectUnits.get(key)?.value ?? 0;
@@ -151,6 +160,16 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
       advisor[assignment.category] += 1;
       advisor.categoryUnits[assignment.category] += units;
       if (assignment.name < advisor.name) advisor.name = assignment.name;
+      assignment.monthly.forEach((monthly, month) => {
+        const allocationKey = JSON.stringify([advisorKey, month]);
+        if (!street.allocations.has(allocationKey)) street.allocations.set(allocationKey, {name: assignment.name, month, ...emptyCityPotentialTotals()});
+        const allocation = street.allocations.get(allocationKey);
+        allocation.total += 1;
+        allocation.units += monthly.units;
+        allocation[monthly.category] += 1;
+        allocation.categoryUnits[monthly.category] += monthly.units;
+        if (assignment.name < allocation.name) allocation.name = assignment.name;
+      });
     });
     if (key.startsWith('address:')) addressIdentified += 1;
     if (key.startsWith('unidentified:')) unidentified += 1;
@@ -167,6 +186,7 @@ function buildUniquePotentialSummary(allRecords, selectedRecords) {
         const firstMonthB = b.months[0] ?? '9999-99';
         return firstMonthA.localeCompare(firstMonthB) || cityPotentialCollator.compare(a.name, b.name);
       });
+      street.allocations = [...street.allocations.values()].sort((a,b) => (a.month || '9999-99').localeCompare(b.month || '9999-99') || cityPotentialCollator.compare(a.name,b.name));
     });
   });
   return {cities: sortedCities, totals, addressIdentified, unidentified};
@@ -228,8 +248,8 @@ function refreshCityPotential() {
     const streetEntries = city.streets.map(street => {
       const child = makeCityPotentialRow(street.name, street, 'street');
       child.hidden = true;
-      const advisorRows = street.advisors.length > 1 ? street.advisors.map(advisor => {
-        const advisorRow = makeCityPotentialRow(advisor.name, advisor, 'advisor');
+      const advisorRows = street.advisors.length > 1 ? street.allocations.map(advisor => {
+        const advisorRow = makeCityPotentialRow(`${advisor.month || 'Ohne Monat'} ${advisor.name}`, advisor, 'advisor');
         advisorRow.hidden = true;
         return advisorRow;
       }) : [];
