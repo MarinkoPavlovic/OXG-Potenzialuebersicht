@@ -272,7 +272,7 @@ function render() {
       [['count', number(count)], ['units', number(units)], ['rate', percentage]].forEach(([metric, value]) => {
         const cell = document.createElement('td');
         cell.className = `advisor-category advisor-${kind} city-potential-category city-potential-${category} city-potential-${metric}`;
-        cell.textContent = isTotal && metric === 'rate' ? '' : value;
+        cell.textContent = value;
         tr.append(cell);
       });
     });
