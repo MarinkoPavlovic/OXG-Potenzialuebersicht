@@ -262,7 +262,7 @@ function render() {
     const rate=(value,base)=>base?pct(value,base):'–';
     const nameCell=document.createElement(isTotal?'th':'td');
     if(isTotal)nameCell.setAttribute('scope','row');
-    if(isCity){nameCell.className='advisor-city-name';nameCell.textContent=`└ ${row.name}`;}
+    if(isCity){nameCell.className='advisor-city-name';nameCell.textContent=`└ ${row.name}`;nameCell.title=row.name;}
     else if(!isTotal && city==='all' && row.cities.length){const button=document.createElement('button');button.type='button';button.className='advisor-city-toggle';button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',`Listen für ${row.name} anzeigen`);button.textContent=`${row.name} ▾`;nameCell.append(button);tr._advisorToggle=button;}
     else nameCell.textContent=row.name;
     tr.append(nameCell);

@@ -227,3 +227,7 @@
 .metric-chart-panel .chart-wall { top: 32px; }
 .metric-chart-panel .chart-y-axis { top: 40px; }
 .filters { padding-top: 3px; }
+.advisor-table { --city-potential-label-width: 225px; }
+.advisor-table col:nth-child(2) { width: calc(5ch + 12px); }
+.advisor-table col:nth-child(3) { width: calc(7ch + 10px); }
+.advisor-table.city-potential-table .advisor-city-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
