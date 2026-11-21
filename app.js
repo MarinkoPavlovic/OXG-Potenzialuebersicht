@@ -234,6 +234,7 @@ function todoTotals() {
 function render() {
   updateAdvisorStreetFilter();
   document.querySelector('#analysisSections').hidden = liveRecords === null || liveRecords.length === 0;
+  document.querySelector('#progressSection').hidden = liveRecords === null || liveRecords.length === 0;
   if (window.refreshLeadDetails) window.refreshLeadDetails();
   if (window.refreshObjectSearch) window.refreshObjectSearch();
   if (window.refreshCityPotential) window.refreshCityPotential();

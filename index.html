@@ -60,6 +60,13 @@
         <div class="cloud-feedback"><span id="cloudStatus" role="status"></span><span id="dataTimestamp"></span><details id="cloudProblems" hidden><summary>Dateien mit Prüfbedarf</summary><ul id="cloudProblemList"></ul></details></div>
       </section>
 
+      <div id="progressSection" hidden>
+        <section class="progress-strip" aria-label="Bearbeitungsfortschritt">
+          <div class="progress-track" role="progressbar" aria-label="Bearbeitungsfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progressFill"></i></div>
+          <div class="progress-copy"><strong id="progressLabel">–</strong><span id="progressDetail">–</span></div>
+        </section>
+      </div>
+
       <section class="metric-grid" aria-label="Kennzahlen">
         <article class="metric"><p>Gesamtpotenzial</p><strong id="total">–</strong><small id="scope">–</small><div class="marketable-total"><span>Vermarktbares Potenzial</span><strong id="marketableTotal">–</strong></div></article>
         <article class="metric accent detail-trigger" role="button" tabindex="0" data-detail="contract" aria-label="Leads mit Gestattung anzeigen"><p>Gestattung</p><strong id="contracts">–</strong><small id="contractRate">–</small></article>
@@ -71,11 +78,6 @@
 
       <div id="analysisSections" hidden>
       <label class="rate-option"><input type="checkbox" id="rateBasis"> Nur ermittelte Leads</label>
-
-      <section class="progress-strip" aria-label="Bearbeitungsfortschritt">
-        <div class="progress-track" role="progressbar" aria-label="Bearbeitungsfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progressFill"></i></div>
-        <div class="progress-copy"><strong id="progressLabel">–</strong><span id="progressDetail">–</span></div>
-      </section>
 
       <section class="dashboard-grid">
         <article class="panel status-panel">
@@ -177,7 +179,7 @@
     <script src="nonmarketable-details.js"></script>
     <script src="todo-data.js"></script>
     <script src="lead-types-data.js"></script>
-    <script src="app.js?v=20261113-advisor-total-no-percent"></script>
+    <script src="app.js?v=20261121-progress-above-metrics"></script>
     <script src="lead-details.js?v=20261114-hv-note-search"></script>
     <script src="city-potential.js?v=20261121-unique-potential-export"></script>
     <script src="table-fit.js?v=20261110-fit-available-space"></script>
