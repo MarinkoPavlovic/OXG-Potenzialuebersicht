@@ -218,3 +218,11 @@
 .lead-note-search button { flex: none; padding: 8px 12px; border: 1px solid #b6ccc6; border-radius: 7px; background: #edf6f3; color: #123d3e; font: inherit; font-size: 13px; cursor: pointer; }
 .lead-note-search button:disabled { opacity: .5; cursor: default; }
 .lead-note-search input:focus-visible, .lead-note-search button:focus-visible { outline: 2px solid #32727c; outline-offset: 2px; }
+
+/* Keep both status panels compact while retaining space for chart labels. */
+.status-panel { padding-bottom: 14px; }
+.metric-chart-panel { padding-top: 6px; padding-bottom: 14px; }
+.metric-chart-panel .chart-scene { padding-top: 8px; padding-bottom: 2px; }
+.metric-chart-panel .metric-column-value { height: 32px; min-height: 32px; }
+.metric-chart-panel .chart-wall { top: 32px; }
+.metric-chart-panel .chart-y-axis { top: 40px; }
