@@ -226,3 +226,4 @@
 .metric-chart-panel .metric-column-value { height: 32px; min-height: 32px; }
 .metric-chart-panel .chart-wall { top: 32px; }
 .metric-chart-panel .chart-y-axis { top: 40px; }
+.filters { padding-top: 3px; }
