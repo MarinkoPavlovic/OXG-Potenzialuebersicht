@@ -73,6 +73,36 @@ function onsiteRecordsForDisplay(records, allRecords) {
   return records.filter(row => matchesLeadDetail(row,'onsite')).sort(compareLeadAddresses);
 }
 window.onsiteRecordsForDisplay = onsiteRecordsForDisplay;
+function onsiteRecordsForTile(records, allRecords) {
+  const keys = new Map(), priorities = new Map(), chosen = new Map();
+  const category = row => {
+    const status = String(row[4] ?? '').trim();
+    if (status === 'Vertrag abgeschlossen') return 0;
+    if (status === 'ET hat kein Interesse') return 1;
+    if (nonmarketableStatuses.has(status)) return 2;
+    return matchesLeadDetail(row,'unworked') ? 4 : 3;
+  };
+  allRecords.forEach((row,index) => {
+    const id=normalizeAdsId(row[9]);
+    const key=typeof uniquePotentialKey === 'function' ? uniquePotentialKey(row,index) : id ? `id:${id}` : `unidentified:${index}`;
+    keys.set(row,key);
+    priorities.set(key,Math.min(priorities.get(key) ?? Infinity,category(row)));
+  });
+  const determinedIds=collectDeterminedLeadIds(allRecords);
+  records.forEach((row,index) => {
+    if (!matchesLeadDetail(row,'onsite')) return;
+    const id=normalizeAdsId(row[9]);
+    if (matchesLeadDetail(row,'unworked') && id && determinedIds.has(id)) return;
+    const key=keys.get(row) ?? `unmatched:${index}`;
+    if ((priorities.get(key) ?? category(row)) < 3) return;
+    const previous=chosen.get(key);
+    const determined=String(row[5] ?? '').trim().toLocaleLowerCase('de-DE')==='ja';
+    const previousDetermined=previous && String(previous[5] ?? '').trim().toLocaleLowerCase('de-DE')==='ja';
+    if (!previous || (determined && !previousDetermined) || (determined===previousDetermined && String(row[0] ?? '')>=String(previous[0] ?? ''))) chosen.set(key,row);
+  });
+  return [...chosen.values()];
+}
+window.onsiteRecordsForTile = onsiteRecordsForTile;
 function appendLeadDetails() {
   const next=Math.min(visibleLeadCount+100,leadDetailRecords.length);
   const fragment=document.createDocumentFragment();

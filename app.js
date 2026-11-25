@@ -312,7 +312,7 @@ function render() {
   const inProgressUnits = todo.owner[1] + todo.hv[1];
   document.querySelector('#todoOwner').innerHTML = metricValue(...todo.owner);
   document.querySelector('#todoHv').innerHTML = metricValue(...todo.hv);
-  const onsiteRows = liveRecords !== null && window.onsiteRecordsForDisplay ? window.onsiteRecordsForDisplay(typeRecords(), liveRecords) : null;
+  const onsiteRows = liveRecords !== null && window.onsiteRecordsForTile ? window.onsiteRecordsForTile(typeRecords(), liveRecords) : null;
   document.querySelector('#todoOnsite').innerHTML = onsiteRows ? metricValue(onsiteRows.length, onsiteRows.reduce((sum,row)=>sum+(Number(row[3])||0),0)) : metricValue(...todo.onsite);
   document.querySelector('#total').innerHTML = metricValue(t.t, units.w);
   document.querySelector('#marketableTotal').innerHTML = metricValue(marketableLeads, Math.max(0, units.w - nonMarketable[1]));
