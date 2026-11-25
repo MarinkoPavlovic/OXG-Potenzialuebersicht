@@ -124,8 +124,8 @@ function refreshLeadDetails() {
   document.querySelector('#exportLeadDetails').disabled = true;
   if(liveRecords===null){leadDetailsInfo.textContent='Für die Einzelansicht bitte zuerst die Beraterlisten über OneDrive vollständig einlesen.';return;}
   contractedLeadIds=collectContractedLeadIds(liveRecords);
-  const determinedIds = activeLeadDetail === 'unworked' ? collectDeterminedLeadIds(liveRecords) : null;
-  leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row) && (!determinedIds || !normalizeAdsId(row[9]) || !determinedIds.has(normalizeAdsId(row[9])))).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
+  const determinedIds = ['unworked','onsite'].includes(activeLeadDetail) ? collectDeterminedLeadIds(liveRecords) : null;
+  leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row) && (!determinedIds || !matchesLeadDetail(row,'unworked') || !normalizeAdsId(row[9]) || !determinedIds.has(normalizeAdsId(row[9])))).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
   appendLeadDetails();
   document.querySelector('#exportLeadDetails').disabled = !canExportLeadDetails() || !leadDetailRecords.length;
 }
