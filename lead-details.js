@@ -24,6 +24,9 @@ const existingContractStatuses = new Set(['Vertrag abgeschlossen','Vertrag onlin
 function collectContractedLeadIds(records) {
   return new Set(records.filter(row=>existingContractStatuses.has(row[4]) && normalizeAdsId(row[9])).map(row=>normalizeAdsId(row[9])));
 }
+function collectDeterminedLeadIds(records) {
+  return new Set(records.filter(row => String(row[5] ?? '').trim().toLocaleLowerCase('de-DE') === 'ja' && normalizeAdsId(row[9])).map(row => normalizeAdsId(row[9])));
+}
 function hasExistingContract(row, ids) {
   const id=normalizeAdsId(row[9]);
   return Boolean(id && ids.has(id));
@@ -121,7 +124,8 @@ function refreshLeadDetails() {
   document.querySelector('#exportLeadDetails').disabled = true;
   if(liveRecords===null){leadDetailsInfo.textContent='Für die Einzelansicht bitte zuerst die Beraterlisten über OneDrive vollständig einlesen.';return;}
   contractedLeadIds=collectContractedLeadIds(liveRecords);
-  leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row)).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
+  const determinedIds = activeLeadDetail === 'unworked' ? collectDeterminedLeadIds(liveRecords) : null;
+  leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row) && (!determinedIds || !normalizeAdsId(row[9]) || !determinedIds.has(normalizeAdsId(row[9])))).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
   appendLeadDetails();
   document.querySelector('#exportLeadDetails').disabled = !canExportLeadDetails() || !leadDetailRecords.length;
 }
