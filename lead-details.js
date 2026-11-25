@@ -27,6 +27,19 @@ function collectContractedLeadIds(records) {
 function collectDeterminedLeadIds(records) {
   return new Set(records.filter(row => String(row[5] ?? '').trim().toLocaleLowerCase('de-DE') === 'ja' && normalizeAdsId(row[9])).map(row => normalizeAdsId(row[9])));
 }
+function uniqueOnsiteRecords(records) {
+  const chosen = new Map();
+  const unidentifiable = [];
+  records.forEach(row => {
+    const id = normalizeAdsId(row[9]);
+    if (!id) { unidentifiable.push(row); return; }
+    const previous = chosen.get(id);
+    const determined = String(row[5] ?? '').trim().toLocaleLowerCase('de-DE') === 'ja';
+    const previousDetermined = previous && String(previous[5] ?? '').trim().toLocaleLowerCase('de-DE') === 'ja';
+    if (!previous || (determined && !previousDetermined) || (determined === previousDetermined && String(row[0] ?? '') >= String(previous[0] ?? ''))) chosen.set(id, row);
+  });
+  return [...chosen.values(), ...unidentifiable];
+}
 function hasExistingContract(row, ids) {
   const id=normalizeAdsId(row[9]);
   return Boolean(id && ids.has(id));
@@ -126,6 +139,7 @@ function refreshLeadDetails() {
   contractedLeadIds=collectContractedLeadIds(liveRecords);
   const determinedIds = ['unworked','onsite'].includes(activeLeadDetail) ? collectDeterminedLeadIds(liveRecords) : null;
   leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row) && (!determinedIds || !matchesLeadDetail(row,'unworked') || !normalizeAdsId(row[9]) || !determinedIds.has(normalizeAdsId(row[9])))).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
+  if (activeLeadDetail === 'onsite') leadDetailRecords=uniqueOnsiteRecords(leadDetailRecords).sort(compareLeadAddresses);
   appendLeadDetails();
   document.querySelector('#exportLeadDetails').disabled = !canExportLeadDetails() || !leadDetailRecords.length;
 }
