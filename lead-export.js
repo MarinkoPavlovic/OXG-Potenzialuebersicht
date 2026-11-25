@@ -106,6 +106,9 @@ async function saveLeadWorkbook(filename, records, category) {
   link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
+function onsiteExportRecords(records, allRecords, contractIds) {
+  return uniqueCityPotentialExportRecords(allRecords, records).filter(row=>!existingContractStatuses.has(row[4]) && !hasExistingContract(row,contractIds)).sort(compareLeadAddresses);
+}
 exportLeadButton.addEventListener('click',async()=>{
   if(liveRecords===null || !canExportLeadDetails())return;
   exportLeadButton.disabled=true;
@@ -118,7 +121,9 @@ exportLeadButton.addEventListener('click',async()=>{
       : year && year !== 'all' ? year
       : selectedAdvisors.size === 1 ? [...selectedAdvisors][0] : 'Auswahl';
     const filename=leadExportFilename(activeLeadDetail,scope);
-    const records=uniqueExportRecords(leadDetailRecords.filter(row=>!hasExistingContract(row,contractedLeadIds)));
+    const records=activeLeadDetail==='onsite'
+      ? onsiteExportRecords(leadDetailRecords,liveRecords,contractedLeadIds)
+      : uniqueExportRecords(leadDetailRecords.filter(row=>!hasExistingContract(row,contractedLeadIds)));
     await saveLeadWorkbook(filename,records,activeLeadDetail);
   } catch(error) { if(error.name!=='AbortError')leadDetailsInfo.textContent=`Excel-Export fehlgeschlagen: ${error.message}`; }
   finally {exportLeadButton.disabled=liveRecords===null || !canExportLeadDetails() || !leadDetailRecords.length;}
