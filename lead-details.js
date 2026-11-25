@@ -82,6 +82,11 @@ function matchesLeadDetail(row, category) {
   if(category==='onsite')return (inProgress&&residence==='ja')||unworked;
   return false;
 }
+function onsiteRecordsForDisplay(records, allRecords) {
+  const determinedIds = collectDeterminedLeadIds(allRecords);
+  return uniqueOnsiteRecords(records.filter(row => matchesLeadDetail(row,'onsite') && (!matchesLeadDetail(row,'unworked') || !normalizeAdsId(row[9]) || !determinedIds.has(normalizeAdsId(row[9]))))).sort(compareLeadAddresses);
+}
+window.onsiteRecordsForDisplay = onsiteRecordsForDisplay;
 function appendLeadDetails() {
   const next=Math.min(visibleLeadCount+100,leadDetailRecords.length);
   const fragment=document.createDocumentFragment();
@@ -137,9 +142,9 @@ function refreshLeadDetails() {
   document.querySelector('#exportLeadDetails').disabled = true;
   if(liveRecords===null){leadDetailsInfo.textContent='Für die Einzelansicht bitte zuerst die Beraterlisten über OneDrive vollständig einlesen.';return;}
   contractedLeadIds=collectContractedLeadIds(liveRecords);
-  const determinedIds = ['unworked','onsite'].includes(activeLeadDetail) ? collectDeterminedLeadIds(liveRecords) : null;
+  const determinedIds = activeLeadDetail === 'unworked' ? collectDeterminedLeadIds(liveRecords) : null;
   leadDetailRecords=typeRecords().filter(row=>matchesLeadDetail(row,activeLeadDetail) && matchesLeadNoteSearch(row) && (!determinedIds || !matchesLeadDetail(row,'unworked') || !normalizeAdsId(row[9]) || !determinedIds.has(normalizeAdsId(row[9])))).sort(activeLeadDetail==='contract'?compareGestattungLeads:compareLeadAddresses);
-  if (activeLeadDetail === 'onsite') leadDetailRecords=uniqueOnsiteRecords(leadDetailRecords).sort(compareLeadAddresses);
+  if (activeLeadDetail === 'onsite') leadDetailRecords=onsiteRecordsForDisplay(typeRecords(),liveRecords);
   appendLeadDetails();
   document.querySelector('#exportLeadDetails').disabled = !canExportLeadDetails() || !leadDetailRecords.length;
 }
