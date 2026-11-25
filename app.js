@@ -310,7 +310,8 @@ function render() {
   const rateText = value => `${rateDenominator ? pct(value, rateDenominator) : '–'} der ${rateLabel}`;
   const inProgressCount = todo.owner[0] + todo.hv[0];
   const inProgressUnits = todo.owner[1] + todo.hv[1];
-  document.querySelector('#todoOwner').innerHTML = metricValue(...todo.owner);
+  const ownerRows = liveRecords !== null && window.ownerRecordsForTile ? window.ownerRecordsForTile(typeRecords(), liveRecords) : null;
+  document.querySelector('#todoOwner').innerHTML = ownerRows ? metricValue(ownerRows.length, ownerRows.reduce((sum,row)=>sum+(Number(row[3])||0),0)) : metricValue(...todo.owner);
   document.querySelector('#todoHv').innerHTML = metricValue(...todo.hv);
   const onsiteRows = liveRecords !== null && window.onsiteRecordsForTile ? window.onsiteRecordsForTile(typeRecords(), liveRecords) : null;
   document.querySelector('#todoOnsite').innerHTML = onsiteRows ? metricValue(onsiteRows.length, onsiteRows.reduce((sum,row)=>sum+(Number(row[3])||0),0)) : metricValue(...todo.onsite);

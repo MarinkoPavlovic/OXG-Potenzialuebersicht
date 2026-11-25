@@ -73,7 +73,7 @@ function onsiteRecordsForDisplay(records, allRecords) {
   return records.filter(row => matchesLeadDetail(row,'onsite')).sort(compareLeadAddresses);
 }
 window.onsiteRecordsForDisplay = onsiteRecordsForDisplay;
-function onsiteRecordsForTile(records, allRecords) {
+function onsiteRecordsForTile(records, allRecords, detailCategory = 'onsite') {
   const keys = new Map(), priorities = new Map(), chosen = new Map();
   const category = row => {
     const status = String(row[4] ?? '').trim();
@@ -90,7 +90,7 @@ function onsiteRecordsForTile(records, allRecords) {
   });
   const determinedIds=collectDeterminedLeadIds(allRecords);
   records.forEach((row,index) => {
-    if (!matchesLeadDetail(row,'onsite')) return;
+    if (!matchesLeadDetail(row,detailCategory)) return;
     const id=normalizeAdsId(row[9]);
     if (matchesLeadDetail(row,'unworked') && id && determinedIds.has(id)) return;
     const key=keys.get(row) ?? `unmatched:${index}`;
@@ -103,6 +103,7 @@ function onsiteRecordsForTile(records, allRecords) {
   return [...chosen.values()];
 }
 window.onsiteRecordsForTile = onsiteRecordsForTile;
+window.ownerRecordsForTile = (records, allRecords) => onsiteRecordsForTile(records, allRecords, 'owner');
 function appendLeadDetails() {
   const next=Math.min(visibleLeadCount+100,leadDetailRecords.length);
   const fragment=document.createDocumentFragment();
