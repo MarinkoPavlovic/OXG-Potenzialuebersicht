@@ -107,7 +107,9 @@ async function saveLeadWorkbook(filename, records, category) {
   setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 function onsiteExportRecords(records, allRecords, contractIds) {
-  return uniqueCityPotentialExportRecords(allRecords, records).filter(row=>!existingContractStatuses.has(row[4]) && !hasExistingContract(row,contractIds)).sort(compareLeadAddresses);
+  return uniqueCityPotentialExportRecords(allRecords, records)
+    .filter(row => ['inprogress','unworked'].includes(uniquePotentialCategory(row)) && !existingContractStatuses.has(row[4]) && !hasExistingContract(row,contractIds))
+    .sort(compareLeadAddresses);
 }
 exportLeadButton.addEventListener('click',async()=>{
   if(liveRecords===null || !canExportLeadDetails())return;
